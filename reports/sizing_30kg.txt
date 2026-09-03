@@ -63,7 +63,24 @@
       400      208   0.52    0.3865      23.8    ancla simple
     --------------------------------------------------------------
 
-    SELECCION: D_int = 280 mm  ->  ancla con travesano intermedio
+    ##################################################################
+    # SUPERADO POR calculations/mezclado.py                          #
+    #                                                                #
+    # El ancla con travesano intermedio que se selecciona abajo esta #
+    # MAL. El criterio de arco de Jenike demuestra que esta masa      #
+    # puentea cualquier abertura que quepa en la olla: el travesano   #
+    # se empaqueta y el conjunto pasa a girar como un tapon solido.   #
+    # Lo puse para arrastrar el nucleo y lo que hace es fabricarlo.   #
+    #                                                                #
+    # Ademas este bloque dimensiona sobre los 30 kg de PRODUCTO       #
+    # cuando hay que dimensionar sobre la CARGA (~34 kg), y el        #
+    # balance termico ignora el calor latente de evaporacion.         #
+    #                                                                #
+    # Sustituido por: CINTA HELICOIDAL con raspadores, sin lazos.     #
+    # Se conserva el bloque como registro del razonamiento.           #
+    ##################################################################
+
+    SELECCION [ANULADA]: D_int = 280 mm -> ancla con travesano
 
     Con h/D = 1.51 el ancla sigue siendo viable, pero ya NO la simple:
     necesita un travesano a media altura que arrastre el nucleo. Sin

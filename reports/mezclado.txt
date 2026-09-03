@@ -1,0 +1,417 @@
+==============================================================================
+ MEZCLADO DE PASTA PEGAJOSA - REVISION DEL IMPULSOR
+ Mezcladora de porcelana fria  ·  Quito
+==============================================================================
+
+==============================================================================
+ 0. AUDITORIA  —  DOS ERRORES EN EL DIMENSIONAMIENTO ANTERIOR
+==============================================================================
+
+  ERROR 1 — SE DIMENSIONO SOBRE LA MASA DE PRODUCTO, NO DE CARGA
+
+    Receta base, carga total .........    1624 g
+      de la cual, agua en la cola ....     396 g (24 %)
+
+    Durante la coccion se pierde agua. La masa que sale del equipo
+    pesa MENOS que la que entra. El calculo anterior tomo los 30 kg
+    como si fueran la carga, y son el producto.
+
+    perdida    carga a cargar   volumen de carga
+      %             kg               L
+    ----------------------------------------------
+        0           30.0            26.1
+        5           31.6            27.5
+       10           33.3            29.0
+       15           35.3            30.7
+    ----------------------------------------------
+
+    El recipiente hay que dimensionarlo para la CARGA. PRO-01 y PRO-02
+    lo resuelven pesando entrada y salida de un lote: dos pesadas.
+
+  ERROR 2 — SE IGNORO EL CALOR LATENTE DE EVAPORACION
+
+    Con 12 % de perdida, agua evaporada ..    4.09 kg
+    Calor sensible (calentar la carga) .    5.15 MJ
+    Calor LATENTE (evaporar esa agua) ..    9.44 MJ
+    Total ..............................   14.60 MJ
+    Relacion latente/sensible ..........    1.83 x
+
+    El calculo anterior solo conto el sensible. Si la perdida real es
+    del 12 %, el quemador esta infradimensionado por un factor de
+    2.8, y el tiempo de ciclo tambien.
+
+    MATIZ IMPORTANTE, y va a favor: a 80 degC de masa tapada, la
+    evaporacion es MUCHO mas lenta que en el microondas, donde la masa
+    hierve por puntos. Es probable que el bano maria pierda bastante
+    menos agua. Pero eso tiene su propia consecuencia:
+
+    >> El producto puede salir MAS HUMEDO y MAS PEGAJOSO que el que
+       hacen hoy en el microondas, aunque el almidon haya cuajado.
+       No es un fallo del equipo: es que el proceso ya no es el mismo.
+       Puede hacer falta una fase final de secado con la tapa abierta.
+
+    Las dos pesadas de PRO-01 y PRO-02 cierran esto tambien.
+
+==============================================================================
+ 1. GEOMETRIA RECALCULADA  (sobre la carga, no sobre el producto)
+==============================================================================
+
+    Carga a procesar .................    34.1 kg
+    Volumen de carga .................    29.6 L
+    Diametro interior ................     280 mm
+    Altura de masa ...................     481 mm
+    Altura interior del recipiente ...     741 mm
+    Esbeltez h/D de la masa ..........    1.72
+
+    h/D > 1.7. El ancla queda descartada por geometria, incluso
+    antes de entrar en los problemas de pegajosidad. A esta
+    esbeltez un ancla no circula el volumen: solo remueve una
+    corona junto a la pared.
+
+==============================================================================
+ Q1. LA MAICENA  —  ¿por que no se apelmaza en las aspas?
+==============================================================================
+
+  1a) EL IMPULSOR NO PUEDE DESHACER GRUMOS. NINGUNO.
+
+    Velocidad de corte disponible (Metzner-Otto, gamma = ks . N):
+      ancla   ks=11 ....    5.50 1/s
+      cinta   ks=30 ....   15.00 1/s
+    Necesaria para romper un grumo ya formado .. ~1000 1/s
+    Deficit ...................................      67 veces
+
+    Estamos DOS ORDENES DE MAGNITUD por debajo. Da igual el impulsor
+    y da igual el motor: a 30 rpm no se rompe un grumo de almidon.
+    Un grumo con la piel ya gelatinizada solo se deshace con corte
+    alto (rotor-estator, 3000 rpm) o a mano.
+
+    CONCLUSION: no se pueden deshacer. Hay que EVITAR que se formen.
+
+  1b) LA VENTANA: EL ALMIDON NO GELATINIZA EN FRIO
+
+    Inicio de gelatinizacion del almidon de maiz .. 62 degC
+
+    Por debajo de esa temperatura el almidon es polvo inerte en
+    suspension: la mezcla es fluida y el polvo se incorpora sin
+    dificultad. Por encima, cada particula se hincha y se pega a sus
+    vecinas: ahi nacen los grumos, y ya no hay vuelta atras.
+
+    Si se enciende el quemador con maicena sin dispersar, hay tiempo
+    limitado. Cuanto:
+
+    Constante de tiempo termica ......    13.1 min
+    Tiempo de 18 a 62 degC .............    14.0 min
+
+    Son los minutos que hay para meter TODA la maicena una vez
+    encendido el fuego. Es poco margen para 15 kg de polvo.
+
+  1c) LA REGLA DE OPERACION QUE RESUELVE Q1
+
+    No es un problema de maquina: es de SECUENCIA. Tres reglas:
+
+    R1. TODA la maicena entra EN FRIO, con el quemador APAGADO.
+        La ventana deja de existir. Es gratis.
+
+    R2. La maicena NO se vuelca encima. Se tamiza y se deja caer
+        despacio sobre la superficie en movimiento, o mejor, se
+        introduce POR DEBAJO del nivel de liquido con un conducto.
+        Volcada de golpe forma una capa seca en la superficie que
+        el impulsor dobla hacia dentro sin mojar: eso es un grumo
+        gigante, y es exactamente lo que pasa hoy.
+
+    R3. Antes de encender, se confirma que no hay grumos. Una vez
+        encendido, ya no se corrige.
+
+    Y RESPONDE A TU PREGUNTA LITERAL: el polvo no se apelmaza en las
+    aspas porque cuando entra, las aspas estan sumergidas en liquido
+    frio y fluido. El polvo nunca toca una pala pegajosa. La pala se
+    vuelve pegajosa despues, cuando ya no hay polvo suelto.
+
+    ESTO CAMBIA LA MAQUINA: hace falta una BOCA DE CARGA DE SOLIDOS
+    con tamiz, no un agujero en la tapa.
+
+==============================================================================
+ Q3. LA CUADRICULA GIRATORIA  —  ¿se empaqueta la masa dentro?
+==============================================================================
+
+  RESPUESTA CORTA: SI. Y no se arregla cambiando el tamano de los
+  huecos. Se arregla quitando los huecos.
+
+  CRITERIO DE ARCO (Jenike). Un material cohesivo forma un puente
+  estable sobre una abertura si esta es menor que:
+
+        B = (1 + m) . sigma_c / (rho . g)      m=0 ranura, m=1 circular
+
+  donde sigma_c es la resistencia a compresion sin confinar, que para
+  una pasta plastica vale del orden de 2 . tau_y.
+
+    tau_y     sigma_c    B ranura    B circular   ¿puentea en una
+     Pa         Pa          mm          mm        olla de 280 mm?
+  --------------------------------------------------------------------
+      500       1000          89          177        no
+     1000       2000         177          355        no
+     2000       4000         355          709        SI
+     5000      10000         886         1773        SI
+    10000      20000        1773         3546        SI
+    20000      40000        3546         7091        SI
+  --------------------------------------------------------------------
+
+  LECTURA. Con un esfuerzo de fluencia de apenas 2000 Pa —una pasta
+  blanda, mucho menos que porcelana fria cuajada— el arco estable
+  mide ya 355 mm. La olla entera mide 280 mm de diametro.
+
+  Es decir: ESTA MASA PUENTEA CUALQUIER ABERTURA QUE QUEPA EN ESTA
+  OLLA. No hay tamano de hueco que la deje pasar por gravedad.
+
+  CONSECUENCIAS DE DISENO, y son duras:
+
+   1. Cualquier estructura del impulsor que forme un lazo cerrado o
+      semicerrado —el travesano intermedio que yo propuse, un aro,
+      una cuadricula, dos brazos con barra— se llena de masa y a
+      partir de ahi GIRA COMO UN SOLIDO. Deja de mezclar. Es
+      exactamente lo que intuiste.
+
+   2. El ancla con travesano intermedio que propuse en
+      calculations/sizing_30kg.py ES ESA CUADRICULA. Estaba mal.
+      Lo puse para arrastrar el nucleo y lo que hace es fabricarlo.
+
+   3. No sirve descargar por gravedad por un fondo con valvula: la
+      masa hace arco sobre la boca y no baja. La descarga tiene que
+      ser por desplazamiento positivo o por volteo.
+
+  LO QUE SI FUNCIONA: DESPLAZAMIENTO POSITIVO.
+  Que ningun elemento espere a que la masa fluya hacia el. Cada
+  elemento tiene que EMPUJAR masa a un sitio distinto, continuamente,
+  y no dejar ningun volumen sin barrer entre pasada y pasada.
+
+  Eso es una CINTA HELICOIDAL: una helice abierta, sin travesanos,
+  sin lazos cerrados y sin superficies horizontales. Bombea como un
+  tornillo: sube masa por la pared y la deja caer por el centro, o al
+  reves. No hay volumen que pueda quedarse quieto.
+
+==============================================================================
+ Q2. BARRIDO  —  ¿las aspas alcanzan todo el volumen?
+==============================================================================
+
+  2a) ZONA MUERTA JUNTO A LA PARED  (modelo de caverna)
+
+    En un fluido con esfuerzo de fluencia, el impulsor solo mueve una
+    'caverna' a su alrededor. Mas alla, el material esta QUIETO. El
+    radio de esa caverna sale de un balance de par: en su frontera, el
+    esfuerzo cortante iguala al de fluencia.
+
+        T = 2 . pi . tau_y . H . Rc^2   ->   Rc = raiz(T / (2 pi tau_y H))
+
+    Con H = 481 mm de masa y radio de olla 140 mm:
+
+     tau_y    Rc con 274 N.m   Rc con 548 N.m   ¿barre hasta
+      Pa            mm               mm          la pared?
+    ------------------------------------------------------------
+       500            426              602        SI
+      1000            301              426        SI
+      2000            213              301        SI
+      5000            135              190        SI
+     10000             95              135        NO - zona muerta
+     20000             67               95        NO - zona muerta
+    ------------------------------------------------------------
+
+    UMBRAL: con el par de diseno de 548 N.m, el limite esta en
+    tau_y = 9243 Pa.
+
+    >> Si la masa al cuajar supera ese esfuerzo de fluencia, queda un
+       anillo muerto pegado a la pared, por mucho par que se ponga en
+       el eje: el par se gasta en la caverna interior.
+
+    ESTA ES LA CIFRA DE GO / NO-GO DE TODA LA MAQUINA, y se mide con
+    PAR-06 (brazo de palanca) en una tarde.
+
+    MATIZ: los raspadores cambian el problema en la pared. Un raspador
+    no espera a que la masa fluya: la arranca por interferencia
+    mecanica. Con raspadores, la pared se renueva aunque haya zona
+    muerta. Pero entonces el problema se muda al NUCLEO, que es 2b.
+
+  2b) RECIRCULACION AXIAL  —  el problema de verdad
+
+    Un ancla mueve la masa EN CIRCULOS. Su bombeo de arriba a abajo es
+    incidental. Una cinta helicoidal bombea por desplazamiento
+    positivo, como un tornillo: es geometria, no conveccion.
+
+    Volumen a renovar ................    29.6 L
+
+    ANCLA   caudal axial .............    0.44 L/s
+            tiempo de renovacion .....      67 s
+
+    CINTA   dos estimaciones, porque no coinciden:
+      (a) correlacion Nc=0.6 .....    5.27 L/s  ->      6 s
+      (b) geometrica, paso 260 mm ...    1.24 L/s  ->     24 s
+      (b) es deliberadamente pesimista: solo cuenta el area barrida
+      por el fleje, no el volumen arrastrado entre fleje y eje. El
+      valor real cae entre las dos.
+
+    VENTAJA DE LA CINTA .............. de 2.8 a 12 veces
+
+    Y el numero del ancla es OPTIMISTA: supone que la masa circula.
+    Con una pasta que puentea (Q3), el bombeo incidental del ancla
+    tiende a cero, porque lo que gira es un tapon solido. El de la
+    cinta no: es desplazamiento geometrico y no depende de que la
+    masa 'quiera' fluir.
+
+==============================================================================
+ Q4. PEGAJOSIDAD  —  ¿que se queda adherido y como se evita?
+==============================================================================
+
+  AVISO DE HONESTIDAD: la adherencia NO se puede calcular de primeros
+  principios. Depende de la energia superficial de la masa contra cada
+  material, y eso se mide, no se deduce. Lo que si se puede hacer es
+  separar lo que la geometria decide de lo que hay que ensayar.
+
+  4a) LO QUE SI DECIDE LA GEOMETRIA
+
+    Una pasta pegajosa se queda donde puede APOYARSE. Por eso:
+
+    - Ninguna superficie plana mirando hacia ARRIBA en la zona mojada.
+      Una pletina plana horizontal es una repisa: acumula hasta que el
+      monton gira con ella. Barra redonda o pletina a 45 grados o mas.
+    - Ningun rincon interior en angulo vivo. Todo radio >= 6 mm.
+    - Ningun lazo cerrado (ver Q3).
+    - Nada de tornillos, tuercas ni cabezas expuestas en la zona
+      mojada: cada hueco de una llave es un nido de masa que no se
+      limpia y termina en el producto.
+    - Acabado pulido, Ra <= 0.8 micras. La adherencia de pastas cae
+      mucho al pasar de laminado a pulido. No es cosmetica.
+
+  4b) LA CAPA DE PARED SI SE RESUELVE, Y ES LO IMPORTANTE
+
+    La masa adherida a la PARED es la que se quema, porque es la que
+    esta contra la fuente de calor y no se renueva. Con raspadores:
+      velocidad del raspador en la pared ..    0.41 m/s
+      la pelicula se renueva cada .........     2.0 s
+
+    Ese es el mecanismo que hoy no existe y que resuelve la costra y
+    el desperdicio. Es independiente de la pegajosidad: el raspador
+    no espera a que la masa se despegue, la arranca.
+
+  4c) LO QUE SE QUEDA EN EL IMPULSOR Y NO TIENE ARREGLO
+
+    Sobre la propia cinta SIEMPRE va a quedar masa adherida. Eso no
+    es un fallo: es normal en cualquier mezclador de pasta. Lo que
+    importa es que sea una pelicula fina y uniforme, no un monton
+    creciente. La diferencia entre las dos cosas la marcan las reglas
+    de 4a.
+
+    Consecuencia de operacion: la cinta hay que poder EXTRAERLA para
+    limpiarla. Cubo desmontable en el eje, sin herramienta especial.
+
+  4d) EL ENSAYO QUE CIERRA ESTO  —  15 minutos, sin instrumentos
+
+    Preparar 3 probetas de ~100 cm2: inox laminado, inox pulido y
+    PTFE. Pesarlas. Sumergirlas en la masa recien cuajada, sacarlas,
+    dejarlas escurrir 60 s en vertical y volver a pesarlas.
+
+    La diferencia, en g/m2, dice cual material usar y cuanto producto
+    se va a quedar pegado por lote. Es el unico dato que convierte
+    'es super pegajosa' en una cifra de diseno.
+
+==============================================================================
+ EXTRA. LAS COLUMNAS AZULES  —  por que sobran casi enteras
+==============================================================================
+
+  La pregunta era: ¿que hacen ahi esas columnas tan grandes?
+  Respuesta honesta: estaban resolviendo mal un problema real.
+
+  SIGAMOS EL PAR. El par no desaparece, circula:
+
+     motor -> eje -> cinta -> MASA -> pared de la olla -> cuna ->
+     -> soporte del motor -> motor
+
+  Es un LAZO CERRADO. El par que el reductor mete en el eje vuelve por
+  la masa y la olla hasta el propio soporte del motor. Si el soporte
+  del motor y la cuna de la olla son la MISMA pieza rigida, el par se
+  queda dentro de ese conjunto y no sale de el.
+
+  Yo lo monte al reves: puse el motor arriba de una torre de 1.75 m y
+  la olla colgando de esa misma torre. Asi el lazo tiene que recorrer
+  toda la torre, y por eso salia una estructura enorme: estaba
+  dimensionada para transmitir 548 N.m a lo largo de metro y medio.
+
+  LO CORRECTO: cerrar el lazo cerca de donde nace.
+
+    - Un BASTIDOR DE PAR compacto une el soporte del motor con la cuna
+      de la olla. Recorrido corto, seccion modesta.
+    - La olla se KIVETEA a la cuna con topes antigiro. Hoy solo se
+      apoya por gravedad: eso ya estaba senalado como pendiente R-05
+      en el inventario de componentes, y con este par es critico. Una
+      olla que gira con la masa es un accidente.
+    - La estructura de abajo pasa a llevar SOLO PESO.
+
+  ¿Y aguanta tu bastidor actual solo el peso?
+
+    Carga (34) + agua (12) + inox (20) + eje/cinta (25)
+    + accionamiento (70) .............     161 kg  [SUPUESTO]
+
+    Reparto por viga del marco .......     395 N
+    Momento flector en viga ..........    40.5 N.m
+    Capacidad de 40x40x2 .............     367 N.m
+    Factor de seguridad ..............     9.1
+
+    >> SI. Con un factor amplio. El bastidor nunca tuvo problema con
+       el PESO: lo tenia con el PAR. Si el par ya no pasa por el, el
+       bastidor se conserva casi tal cual y las columnas grandes
+       desaparecen.
+
+  LO QUE SI SIGUE HACIENDO FALTA, y no es negociable:
+
+    - ANCLAJE AL PISO. Con la olla llena y alta, el centro de gravedad
+      sube mucho. En arranque, el par no esta equilibrado todavia
+      —la masa aun no reacciona— y ahi si sale par al exterior.
+    - TOPES ANTIGIRO en la olla.
+    - Rigidez del bastidor de par: si flecta, el eje se descentra y se
+      pierde la luz del raspador.
+
+==============================================================================
+ CONCLUSION  —  que cambia en el diseno
+==============================================================================
+
+  LAS CUATRO RESPUESTAS:
+
+  Q1  La maicena no se apelmaza en las aspas porque entra EN FRIO,
+      tamizada y bajo el nivel de liquido, con el fuego apagado. No es
+      un problema de maquina sino de secuencia. Pero obliga a una boca
+      de carga de solidos con tamiz. A 30 rpm NINGUN impulsor puede
+      deshacer un grumo ya formado: estamos 60 veces por debajo del
+      corte necesario.
+
+  Q2  Barre todo mientras el esfuerzo de fluencia no pase de
+      ~9243 Pa. Por encima queda anillo muerto en la pared. Los
+      raspadores cubren la pared por interferencia mecanica; el
+      nucleo lo cubre la cinta, no el ancla.
+
+  Q3  SI se empaqueta, y tenias razon. Esta masa puentea cualquier
+      abertura que quepa en la olla. La solucion no es agrandar
+      huecos: es que no haya huecos ni lazos. El travesano que
+      propuse era el error.
+
+  Q4  Algo siempre se queda pegado. Lo que decide si es una pelicula
+      o un monton es la geometria: nada horizontal hacia arriba, nada
+      de lazos, radios generosos, pulido. Y un ensayo de 15 minutos.
+
+  CAMBIOS EN EL DISENO:
+
+   1. FUERA el ancla con travesano.  ENTRA cinta helicoidal con
+      raspadores, sin travesanos ni lazos cerrados.
+   2. FUERA la torre grande.  ENTRA bastidor de par compacto que cierra
+      el lazo motor-cuna, sobre el bastidor actual, que solo lleva peso.
+   3. NUEVO: topes antigiro en la olla. Obligatorio.
+   4. NUEVO: boca de carga de solidos con tamiz.
+   5. RECALCULAR sobre la CARGA, no sobre el producto, y meter el
+      calor latente de evaporacion en el balance del quemador.
+   6. La descarga no puede ser por gravedad: la masa hace arco.
+      Volteo o extraccion de la olla.
+
+  LO QUE BLOQUEA EL SIGUIENTE PASO:
+
+    PAR-06   esfuerzo de fluencia al cuajar  -> Q2, motor, reductor
+    PRO-01   masa cargada                    -> geometria del recipiente
+    PRO-02   masa de producto                -> perdida por evaporacion
+    PRO-05   temperatura de cuaje            -> viabilidad del bano
+    ensayo de adherencia 4d                  -> material del impulsor
