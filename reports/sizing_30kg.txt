@@ -1,0 +1,320 @@
+==============================================================================
+ DIMENSIONAMIENTO PRELIMINAR - PROTOTIPO 2 PARA 30 kg POR LOTE
+ Mezcladora-cocedora de porcelana fria  ·  Quito, Ecuador
+==============================================================================
+
+ AVISO. Este es un dimensionamiento CONCEPTUAL. Se apoya en supuestos
+ sobre las propiedades de la masa que NADIE ha medido todavia. Sirve
+ para decidir la ARQUITECTURA y para saber que comprar y que medir.
+ NO sirve para cortar material.
+
+==============================================================================
+ 1. ALTITUD DE QUITO  —  HALLAZGO QUE CONDICIONA EL DISENO
+==============================================================================
+
+    Altitud de Quito .................    2850 m   [PROPORCIONADO]
+    Presion atmosferica ..............    71.5 kPa [CALCULADO]
+    Ebullicion del agua a nivel del mar  100.0 degC
+    Ebullicion del agua EN QUITO .....    90.5 degC [CALCULADO]
+
+    CONSECUENCIA DIRECTA:
+    El bano maria NO puede pasar de 91 degC en Quito. No es una
+    cuestion de control: es el punto de ebullicion a esta presion.
+
+    Lo bueno: la garantia fisica contra la costra es MAS fuerte que a
+    nivel del mar. La masa no puede ver mas de ~86 degC.
+
+    Lo malo: desaparece el margen de maniobra. Una consigna de camisa
+    de 90 degC quedaria practicamente EN la ebullicion: hervor fuerte,
+    perdida de agua por el venteo y consumo de gas desperdiciado.
+    Por eso la consigna de trabajo se fija en 85 degC.
+
+    Techo real de temperatura de la masa ... 80 degC
+
+    Con T_cuaje SUPUESTO de 72 degC hay 8 K de margen.
+
+    ESTA ES LA RAZON POR LA QUE PRO-05 (temperatura real de cuaje) ES
+    LA MEDIDA MAS IMPORTANTE DEL PROYECTO. Si la masa necesita mas de
+    80 degC, el bano de AGUA no sirve en Quito y hay que
+    cambiar de fluido. Ver bloque 7.
+
+==============================================================================
+ 2. GEOMETRIA DEL RECIPIENTE PARA 30 kg
+==============================================================================
+
+    Lote objetivo ....................    30.0 kg  [PROPORCIONADO]
+    Volumen de masa ..................    26.1 L   [CALCULADO]
+    Volumen de recipiente (65% lleno)    40.1 L
+
+    POR QUE ANGOSTO Y ALTO. Para un volumen dado, el area lateral
+    mojada vale A = 4V/D: es INVERSAMENTE proporcional al diametro.
+    Un recipiente mas angosto tiene MAS area de intercambio y ademas
+    menor camino de conduccion al centro. Los dos efectos van en el
+    mismo sentido. El limite lo pone el ancla, no la termica.
+
+    D_int   h_masa   h/D    A_interc   t_calent   Impulsor viable
+     mm       mm      -       m2         min
+    --------------------------------------------------------------
+      220      686   3.12    0.5123      17.9    cinta helic. multiple
+      250      531   2.13    0.4665      19.7    cinta helicoidal
+      280      424   1.51    0.4342      21.1    ancla + travesano
+      300      369   1.23    0.4185      21.9    ancla + travesano
+      350      271   0.77    0.3943      23.3    ancla simple
+      400      208   0.52    0.3865      23.8    ancla simple
+    --------------------------------------------------------------
+
+    SELECCION: D_int = 280 mm  ->  ancla con travesano intermedio
+
+    Con h/D = 1.51 el ancla sigue siendo viable, pero ya NO la simple:
+    necesita un travesano a media altura que arrastre el nucleo. Sin
+    el, el ancla mueve bien la corona junto a la pared y deja el
+    centro girando como un tapon. Es exactamente el defecto que hoy
+    produce 'centro crudo'.
+
+    Por que no bajar mas el diametro: por debajo de ~250 mm el bano se
+    vuelve demasiado esbelto para cualquier ancla y obliga a CINTA
+    HELICOIDAL. La cinta mezcla mejor, pero es bastante mas cara de
+    fabricar y de limpiar en un taller de Quito, y la ganancia termica
+    frente a 280 mm es de menos de 1.5 min. No compensa.
+
+    Por que no subir a 300 o 350 mm: el ancla seria mas simple, pero se
+    pierde area de intercambio y crece el camino al centro. Ademas el
+    recipiente se sale del vano actual con mayor probabilidad.
+
+    Diametro interior ................     280 mm
+    Altura de masa ...................     424 mm
+    Altura interior del recipiente ...     652 mm
+    Resguardo libre ..................     228 mm
+    Diametro exterior de la olla .....     284 mm
+    Diametro exterior CON CAMISA .....     328 mm  <-- clave
+
+    NOTA DE ACOPLE. El diametro exterior con camisa queda en
+    ~328 mm. En las fotos, la olla actual parece de orden
+    similar. Si al medir BAS-06 el vano del bastidor lo admite, el
+    recipiente nuevo entra en el hueco existente SIN tocar el marco.
+    Seria el mejor escenario de acople posible. A CONFIRMAR.
+
+==============================================================================
+ 3. TERMICA  —  ¿FUNCIONA EL BANO MARIA A 30 kg?
+==============================================================================
+
+    TRANSFERENCIA A LA MASA
+    Area de intercambio mojada .......  0.4413 m2
+    Salto medio logaritmico ..........    32.9 K
+    Energia a entregar al lote .......   4.536 MJ
+    Potencia transferida .............    3634 W
+    Tiempo de calentamiento ..........    20.8 min
+
+    CARGA DE AGUA DE LA CAMISA
+    Volumen anular ...................    9.05 L
+    Colchon de fondo .................    2.47 L
+    CARGA TOTAL ......................   11.52 L (11.3 kg)
+
+    PRECALENTAMIENTO DE LA CAMISA  (se suele olvidar)
+    Energia para llevar el agua a 85 degC  3.183 MJ
+    Tiempo de precalentamiento .......    14.6 min
+    La camisa hay que arrancarla ANTES de cargar la masa. Ese tiempo
+    se solapa con la carga y la mezcla en frio, no se suma al ciclo.
+
+    QUEMADOR NECESARIO
+    Potencia util requerida ..........    3634 W
+    Potencia de entrada (rend. 40 %) .     9.1 kW
+                                            31 kBTU/h
+    El quemador domestico del prototipo actual (~20 kBTU/h) queda muy
+    corto. Hace falta un quemador industrial de anillo, tipo paila o
+    wok, de alta presion.
+
+    ATENCION AL AJUSTE DE ALTITUD: los quemadores e inyectores de GLP
+    se calibran a nivel del mar. A 2850 m el aire es un 29 % menos
+    denso y la mezcla se enriquece: la potencia real cae y aparece
+    hollin. Hay que pedir el quemador con INYECTOR PARA ALTURA o
+    cambiarlo. Es un detalle barato que arruina el rendimiento si se
+    pasa por alto.
+
+==============================================================================
+ 4. PAR EN EL EJE  —  ¿VA A JALAR POR LAS ASPAS?
+==============================================================================
+
+    METODO. En regimen laminar, que es donde trabaja un ancla en pasta
+    espesa, la potencia de mezcla vale:
+
+        P = Kp . mu . N^2 . D^3        con Kp ~ 350 para ancla
+
+    D_ancla = 270 mm    N = 30 rpm = 0.500 rev/s
+
+    LA VISCOSIDAD ES EL UNICO DATO QUE FALTA, y lo cambia todo:
+
+      mu       P_mezcla   Par eje    Motor min.   ¿Arrastra con
+     Pa.s          W       N.m         kW         2.2 kW / 30 rpm?
+    ------------------------------------------------------------------
+       100        172       54.8       0.34      si
+       300        517      164.5       1.03      si
+       500        861      274.1       1.72      si <--
+       800       1378      438.6       2.76      NO - se cala
+      1200       2067      657.9       4.13      NO - se cala
+      2000       3445     1096.4       6.89      NO - se cala
+    ------------------------------------------------------------------
+
+    RESPUESTA HONESTA A LA PREGUNTA:
+
+    SI, arrastra — mientras la viscosidad aparente en el punto mas
+    espeso no pase de ~1200 Pa.s. Por encima de eso, un conjunto de
+    2.2 kW a 30 rpm se cala.
+
+    Y AHORA MISMO NO SABEMOS DONDE CAE. El rango de la tabla abarca un
+    factor de 20 en el par. No es que el calculo sea malo: es que le
+    falta el dato. PAR-03 (pinza amperimetrica) o PAR-06 (brazo de
+    palanca con bascula) cierran esa banda en una tarde.
+
+    DIMENSIONAMIENTO ADOPTADO (sobre el SUPUESTO mu = 500 Pa.s):
+    Par de mezcla ....................   274.1 N.m
+    Factor de servicio ...............     2.0
+    PAR DE DISENO ....................   548.2 N.m
+    Potencia mecanica ................     861 W
+
+    SELECCION PRELIMINAR:
+      Motorreductor 2.2 kW (3 HP), salida 30 rpm
+      Reductor sinfin-corona i=50 tipo NMRV110 o equivalente
+      Par nominal de salida requerido: >= 548 N.m
+
+    EL REDUCTOR MANDA, NO EL MOTOR. Un NMRV090 se queda en ~450 N.m y
+    no sirve. Al comprar hay que exigir el PAR NOMINAL DE SALIDA del
+    reductor, no los kW del motor. Es el error clasico de compra.
+
+==============================================================================
+ 5. CARGAS QUE LLEGAN A LA ESTRUCTURA
+==============================================================================
+
+    DOS CAMINOS DE CARGA DISTINTOS. Es la clave del acople.
+
+    CAMINO A — el marco de la mesa sostiene el recipiente:
+      Masa del lote ..................    30.0 kg
+      Agua de la camisa ..............    11.3 kg
+      Chapa de olla + camisa .........    18.5 kg  [SUPUESTO]
+      Ancla ..........................    10.0 kg  [SUPUESTO]
+      TOTAL sobre el marco ...........    69.8 kg
+      Carga vertical .................     685 N
+      Es carga ESTATICA y VERTICAL, repartida en el perimetro del
+      vano. Es el tipo de carga que una mesa soldada lleva bien.
+
+    CAMINO B — el brazo y la columna sostienen el accionamiento:
+      Masa del motorreductor .........    65.0 kg  [SUPUESTO]
+      PAR DE REACCION ................   548.2 N.m
+      Este es el que hace dano. El par que el reductor entrega al eje
+      se lo devuelve a su soporte, con el mismo valor y sentido
+      contrario. Sale por los pernos del motor, torsiona el brazo y
+      flexiona la columna. NO es carga estatica vertical: es TORSION
+      mas FLEXION, y ademas pulsante, porque el ancla encuentra
+      resistencia variable en cada vuelta.
+
+    MASA TOTAL DE LA MAQUINA CARGADA ...     151 kg  [SUPUESTO]
+
+==============================================================================
+ 6. ¿AGUANTA EL BASTIDOR EXISTENTE?  —  TABLA DE CAPACIDAD
+==============================================================================
+
+    No se puede responder sin BAS-01 y BAS-02. Lo que si se puede es
+    dejar la tabla resuelta, para leer la fila en cuanto llegue la
+    medida del tubo esta tarde.
+
+    Par de reaccion a resistir .......     548 N.m
+    Tension admisible (FS 2.5) .....     100 MPa
+    Cortante admisible ...............      60 MPa
+
+    Tubo        M_flexion_adm   T_torsion_adm    ¿Resiste el par
+    mm x mm         N.m             N.m          de reaccion?
+    --------------------------------------------------------------
+     40 x 2.0           367            347           NO
+     40 x 3.0           510            493           NO
+     50 x 2.0           591            553           SI
+     50 x 3.0           834            795           SI
+     60 x 3.0          1238           1170           SI
+     75 x 3.0          1994           1866           SI
+     75 x 4.0          2553           2420           SI
+    100 x 4.0          4727           4424           SI
+    --------------------------------------------------------------
+
+    LECTURA DE LA TABLA:
+
+    Si el tubo del bastidor resulta ser 40x40x2 —lo mas probable en un
+    bastidor artesanal de este tamano— la columna y el brazo NO
+    resisten el par de reaccion de un accionamiento para 30 kg: se
+    quedan en unos dos tercios de lo necesario, sin ningun margen.
+    Haria falta pasar a 50x50x2 como minimo solo para EMPATAR el
+    requisito, y a 60x60x3 para tener margen razonable.
+
+    Y ojo: aunque resistiese en tension, faltaria comprobar la
+    DEFORMACION. Un brazo que gira unos grados bajo el par mueve el
+    eje y descentra el ancla, que es justo lo que arruina la luz del
+    raspador.
+
+    CONCLUSION PRELIMINAR (a confirmar con la medida):
+      CAMINO A (recipiente sobre el marco) ....... probablemente OK
+      CAMINO B (accionamiento) .................. probablemente NO
+
+==============================================================================
+ 7. RIESGOS ABIERTOS Y COMO NO QUEDAR ATRAPADO
+==============================================================================
+
+    R1. TEMPERATURA DE CUAJE  (PRO-05)  — riesgo alto
+        Si la masa cuaja por debajo de 80 degC, el bano de
+        agua funciona. Si necesita mas, en Quito NO hay forma de que
+        el agua se lo de.
+
+        DECISION REVERSIBLE: disenar la camisa como camisa, sin atarla
+        al agua. La misma envolvente admite:
+           - agua .............. hasta ~85 degC utiles en Quito
+           - aceite termico .... hasta 150 degC, con termostato
+        Cambia el fluido y el control, no el recipiente. Asi la
+        medicion de PRO-05 no obliga a rehacer nada de chapa.
+
+        Contrapartida honesta del aceite: se pierde el tope fisico. Con
+        agua, la fisica impide pasarse. Con aceite, solo lo impide el
+        termostato, y un termostato se puede averiar.
+
+    R2. VISCOSIDAD REAL  (PAR-03 / PAR-06)  — riesgo alto
+        Banda de un factor 20 en el par. Determina reductor y motor,
+        que son los dos items mas caros. Medir ANTES de comprar.
+
+    R3. ESTRUCTURA  (BAS-01, BAS-02)  — riesgo medio
+        Se resuelve con la tabla del bloque 6 en cuanto llegue la
+        medida del tubo.
+
+    R4. DESCARGA DE 30 kg  — riesgo medio, poco atendido
+        30 kg de masa caliente y pegajosa en un recipiente de 280 mm
+        de boca no se vuelcan a mano. Con la olla llena el conjunto
+        pasa de 55 kg. Hay que resolver la descarga en el diseno, no
+        despues: volteo con muñones, o recipiente extraible con
+        polipasto, o fondo con valvula de mariposa sanitaria.
+
+    R5. INYECTOR DE GLP PARA ALTURA  — riesgo bajo, coste bajo
+        Barato de resolver, caro de ignorar.
+
+==============================================================================
+ RESUMEN EJECUTIVO
+==============================================================================
+
+    Recipiente ....... Ø280 x 652 mm int, Ø328 mm con camisa
+    Camisa ........... 12 L de agua, consigna 85 degC
+    Quemador ......... 31 kBTU/h, inyector para altura
+    Impulsor ......... ancla Ø270 mm con raspadores, 30 rpm
+    Accionamiento .... 2.2 kW, reductor >= 548 N.m de salida
+    Calentamiento .... 21 min (+ 15 min de precalentamiento, solapables)
+    Masa cargada ..... ~151 kg
+
+    LAS TRES RESPUESTAS QUE PEDISTE:
+
+    1. ¿Jala por las aspas?
+       Si, con 2.2 kW a 30 rpm, siempre que la viscosidad no pase de
+       ~1200 Pa.s. Hoy no sabemos donde cae: la banda es de factor 20.
+
+    2. ¿Funciona el bano maria y el agua?
+       Si, PERO en Quito el agua hierve a 91 degC, no a 100. El
+       techo de la masa queda en ~80 degC. Si la masa cuaja por
+       debajo, funciona y ademas con garantia fisica reforzada. Si
+       necesita mas, hay que cambiar de fluido.
+
+    3. ¿Como se acopla con la estructura existente?
+       Separando los caminos de carga. Ver docs/coupling_strategy.md
+
+==============================================================================
