@@ -1,0 +1,648 @@
+# =============================================================================
+# BASE DE DATOS DE PARAMETROS DE DISENO
+# Proyecto: Rediseno de mezcladora de porcelana fria  ·  P1 -> P2
+# =============================================================================
+#
+# FUENTE UNICA DE VERDAD. Ningun script debe llevar valores numericos dentro:
+# todos se leen de aqui.
+#
+# ESQUEMA. Cada parametro es un mapa con:
+#   value  : el valor, o UNKNOWN si aun no se conoce
+#   unit   : unidad SI o la indicada
+#   source : procedencia -> OBSERVADO | MEDIDO | PROPORCIONADO | CALCULADO
+#                           SUPUESTO | PENDIENTE
+#   ref    : ID de la medida en docs/measurement_plan.md, o referencia
+#   notes  : aclaracion breve
+#
+# REGLA. Ningun parametro con source PENDIENTE o SUPUESTO puede usarse para
+# cerrar un plano de taller. Los scripts deben marcarlo en sus resultados.
+#
+# Estado: FASE 1 - practicamente todo PENDIENTE, como corresponde.
+# =============================================================================
+
+meta:
+  proyecto: "Mezcladora de porcelana fria"
+  ubicacion: "Quito, Ecuador"
+  fase_actual: 1
+  fecha_actualizacion: "2026-09-03"
+  baseline: "Prototipo 1 fisico (fotografias 2026-09-02)"
+
+# -----------------------------------------------------------------------------
+# 1. PROCESO Y PRODUCTO
+# -----------------------------------------------------------------------------
+proceso:
+  receta:
+    value: "3 tazas cola vinilica + 6 tazas maicena + 2 cda glicerina + 1 cda vaselina + 1 cdta vinagre + 3x2.5 ml benzoato"
+    unit: "-"
+    source: PROPORCIONADO
+    notes: "Receta base del proceso artesanal"
+
+  metodo_actual:
+    value: "microondas en ciclos de 2 min, meneando entre ciclos"
+    unit: "-"
+    source: PROPORCIONADO
+    notes: "Proceso artesanal, NO el de la maquina P1"
+
+  lotes_paralelos_microondas:
+    value: 6
+    unit: "recipientes"
+    source: PROPORCIONADO
+
+  masa_mezcla_por_recipiente:
+    value: 6.0
+    unit: kg
+    source: PROPORCIONADO
+    notes: "Aproximado, del proceso de microondas"
+
+  rendimiento_masa_total:
+    value: 12.0
+    unit: kg
+    source: PROPORCIONADO
+    notes: "Producto terminado a partir de los 6 recipientes"
+
+producto:
+  densidad:
+    value: UNKNOWN
+    unit: kg/m3
+    source: PENDIENTE
+    ref: PRO-08
+    notes: "Pesar 1 litro de masa terminada. Antes se asumio 1150; sin verificar"
+
+  viscosidad_aparente:
+    value: UNKNOWN
+    unit: Pa.s
+    source: PENDIENTE
+    notes: "No medible con instrumentos simples. Se inferira del par medido PAR-03/PAR-06"
+
+  temperatura_cuaje:
+    value: UNKNOWN
+    unit: degC
+    source: PENDIENTE
+    ref: PRO-05
+    notes: "CRITICO. Antes se asumio 72 degC. Nunca verificado. Condiciona todo el diseno termico"
+
+  temperatura_inicial:
+    value: UNKNOWN
+    unit: degC
+    source: PENDIENTE
+    notes: "Temperatura ambiente de Quito al cargar"
+
+  umbral_costra:
+    value: 120.0
+    unit: degC
+    source: SUPUESTO
+    notes: "Valor tipico de pardeamiento en pastas de almidon. No medido en esta receta"
+
+  conductividad_termica:
+    value: UNKNOWN
+    unit: W/(m.K)
+    source: PENDIENTE
+    notes: "Antes se asumio 0.45. Tipico de pastas de almidon, no medido"
+
+  calor_especifico:
+    value: UNKNOWN
+    unit: J/(kg.K)
+    source: PENDIENTE
+    notes: "Antes se asumio 2800. Tipico de pastas de almidon, no medido"
+
+# -----------------------------------------------------------------------------
+# 2. LOTE OBJETIVO
+# -----------------------------------------------------------------------------
+lote:
+  masa_objetivo:
+    value: UNKNOWN
+    unit: kg
+    source: PENDIENTE
+    notes: "A definir en FASE 3 (requisitos). No es una medida de P1 sino un objetivo de P2"
+
+  masa_actual_p1:
+    value: UNKNOWN
+    unit: kg
+    source: PENDIENTE
+    ref: PRO-02
+    notes: "Cuanto produce hoy P1 por lote"
+
+  volumen_actual_p1:
+    value: UNKNOWN
+    unit: L
+    source: PENDIENTE
+    ref: PRO-01
+
+  tiempo_ciclo_actual:
+    value: UNKNOWN
+    unit: s
+    source: PENDIENTE
+    ref: PRO-03
+
+# -----------------------------------------------------------------------------
+# 3. BASTIDOR  (P1 - baseline)
+# -----------------------------------------------------------------------------
+bastidor:
+  tipo:
+    value: "mesa soldada de tubo cuadrado con portico y brazo en voladizo"
+    unit: "-"
+    source: OBSERVADO
+
+  material:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    notes: "Acero al carbono por aspecto. Grado sin confirmar"
+
+  perfil_lado:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-01
+
+  perfil_espesor:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-02
+
+  altura_mesa:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-03
+    notes: "ICD-03 CONGELADA"
+
+  ancho_mesa:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-04
+    notes: "ICD-01 CONGELADA"
+
+  fondo_mesa:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-05
+    notes: "ICD-02 CONGELADA"
+
+  lado_vano:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-06
+    notes: "ICD-10 CONGELADA. Interfaz mas restrictiva de la maquina"
+
+  altura_columna:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-07
+    notes: "ICD-20 CONGELADA"
+
+  voladizo_brazo:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-08
+    notes: "ICD-21 CONGELADA. Brazo de palanca del momento flector"
+
+  altura_travesano:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: BAS-10
+
+  masa:
+    value: UNKNOWN
+    unit: kg
+    source: PENDIENTE
+    ref: BAS-15
+
+  anclaje_piso:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+    notes: "Sin anclaje ni nivelacion. Problema P-09"
+
+# -----------------------------------------------------------------------------
+# 4. RECIPIENTE  (P1 - baseline)
+# -----------------------------------------------------------------------------
+recipiente:
+  tipo:
+    value: "olla cilindrica de pared simple, fondo plano"
+    unit: "-"
+    source: OBSERVADO
+
+  material:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: OLL-11
+    notes: "Inox por aspecto. Grado sin confirmar. Prueba del iman distingue 304 de 430"
+
+  doble_pared:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+    notes: "Pared simple. Sin camisa"
+
+  diametro_interior:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: OLL-01
+
+  altura_interior:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: OLL-03
+
+  espesor_pared:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: OLL-04
+
+  capacidad:
+    value: UNKNOWN
+    unit: L
+    source: PENDIENTE
+    ref: OLL-06
+    notes: "Medir llenando con agua"
+
+  altura_llenado_lote:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: OLL-07
+
+  masa_vacia:
+    value: UNKNOWN
+    unit: kg
+    source: PENDIENTE
+    ref: OLL-08
+
+  tapa:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+
+  fijacion:
+    value: "apoyo por gravedad en el vano"
+    unit: "-"
+    source: OBSERVADO
+    notes: "Sin fijacion positiva"
+
+# -----------------------------------------------------------------------------
+# 5. EJE  (P1 - baseline)
+# -----------------------------------------------------------------------------
+eje:
+  diametro:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: EJE-01
+    notes: "NO se asume correcto. Regla 11: calcular y luego comparar"
+
+  longitud_libre:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: EJE-02
+    notes: "Ultimo apoyo -> agarre del agitador. Define la flexion"
+
+  longitud_total:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: EJE-03
+
+  inmersion:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: EJE-04
+
+  material:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: EJE-06
+
+  macizo:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: EJE-05
+
+  numero_apoyos:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: TRA-04
+    notes: "CRITICO. No se observa apoyo intermedio: posible voladizo puro desde el motor (P-06)"
+
+# -----------------------------------------------------------------------------
+# 6. AGITADOR  (P1 - baseline)
+# -----------------------------------------------------------------------------
+agitador:
+  tipo:
+    value: "batidor de globo de alambre"
+    unit: "-"
+    source: OBSERVADO
+    notes: "Marcado REDISENA en el inventario. Problemas P-01 y P-02"
+
+  diametro:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: AGI-01
+
+  altura:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: AGI-02
+
+  holgura_pared:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: AGI-04
+    notes: "Se observa holgura amplia. Sin cuantificar"
+
+  holgura_fondo:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: AGI-05
+
+  rascadores:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+    notes: "No existen. Problema P-02"
+
+  rpm:
+    value: UNKNOWN
+    unit: rpm
+    source: PENDIENTE
+    ref: TRA-02a
+    notes: "RPM reales del agitador. Metodo del video en camara lenta"
+
+# -----------------------------------------------------------------------------
+# 7. MOTOR Y TRANSMISION  (P1 - baseline)
+# -----------------------------------------------------------------------------
+motor:
+  fabricante:
+    value: "Hubbell Special Products Inc, Kenosha WI 53144"
+    unit: "-"
+    source: OBSERVADO
+
+  modelo:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: MOT-02
+    notes: "Con el modelo se puede buscar hoja de datos y curva par-velocidad"
+
+  potencia_placa:
+    value: 0.125
+    unit: HP
+    source: OBSERVADO
+    notes: "Unico dato de potencia legible en la placa. 0.125 HP = 93.2 W"
+
+  tension:
+    value: 115
+    unit: V
+    source: OBSERVADO
+
+  rpm_placa:
+    value: UNKNOWN
+    unit: rpm
+    source: PENDIENTE
+    ref: MOT-01
+    notes: "En la foto empieza por 4 pero los digitos siguientes son ilegibles"
+
+  corriente_nominal:
+    value: UNKNOWN
+    unit: A
+    source: PENDIENTE
+    ref: MOT-03
+
+  frecuencia:
+    value: UNKNOWN
+    unit: Hz
+    source: PENDIENTE
+    ref: MOT-04
+
+  fases:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: MOT-05
+
+  proteccion_termica:
+    value: true
+    unit: "-"
+    source: OBSERVADO
+    notes: "La placa dice THERMALLY PROTECTED"
+
+  masa:
+    value: UNKNOWN
+    unit: kg
+    source: PENDIENTE
+    ref: TRA-09
+
+  patron_pernos:
+    value: UNKNOWN
+    unit: mm
+    source: PENDIENTE
+    ref: TRA-07
+    notes: "ICD-23 CONGELADA. Interfaz de mayor valor economico del proyecto"
+
+transmision:
+  tipo:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: TRA-03
+    notes: "Sin transmision externa visible. Hay un manguito sin identificar entre motor y eje"
+
+  existe_reduccion:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: TRA-01
+
+  relacion:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: TRA-02
+    notes: "Metodo: girar el ventilador a mano y contar vueltas por vuelta de salida"
+
+  rendimiento:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    notes: "Depende del tipo. Sinfin-corona 0.5-0.8; engranajes rectos 0.95+"
+
+rodamientos:
+  existen_independientes:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: TRA-04
+    notes: "Ninguno visible en fotos"
+
+  designacion:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: TRA-05
+
+# -----------------------------------------------------------------------------
+# 8. PAR Y POTENCIA MEDIDOS  (bloque clave)
+# -----------------------------------------------------------------------------
+cargas:
+  corriente_vacio:
+    value: UNKNOWN
+    unit: A
+    source: PENDIENTE
+    ref: PAR-01
+
+  corriente_maxima:
+    value: UNKNOWN
+    unit: A
+    source: PENDIENTE
+    ref: PAR-03
+    notes: "CRITICO. Es lo que convierte 'no tiene fuerza' en un numero"
+
+  par_requerido_medido:
+    value: UNKNOWN
+    unit: N.m
+    source: PENDIENTE
+    ref: PAR-06
+    notes: "Metodo del brazo de palanca con bascula de gancho"
+
+  motor_se_cala:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: PAR-04
+
+  par_disponible:
+    value: UNKNOWN
+    unit: N.m
+    source: PENDIENTE
+    notes: "CALCULADO en FASE 4 a partir de potencia, rpm y rendimiento"
+
+# -----------------------------------------------------------------------------
+# 9. CALENTAMIENTO  (P1 - baseline)
+# -----------------------------------------------------------------------------
+calentamiento:
+  metodo:
+    value: "llama directa de GLP sobre el fondo de la olla"
+    unit: "-"
+    source: OBSERVADO
+    notes: "Causa raiz probable de la costra (R-02). Sin elemento intermedio"
+
+  combustible:
+    value: "GLP"
+    unit: "-"
+    source: OBSERVADO
+
+  potencia_quemador:
+    value: UNKNOWN
+    unit: kW
+    source: PENDIENTE
+    ref: QUE-02
+
+  control_temperatura:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+    notes: "Solo valvula de bola manual. Sin sonda ni termostato. Problema P-04"
+
+  temperatura_pared_operacion:
+    value: UNKNOWN
+    unit: degC
+    source: PENDIENTE
+    ref: PRO-06
+    notes: "Termometro infrarrojo. Si supera el umbral de costra, queda demostrada la causa"
+
+  consumo_glp_por_lote:
+    value: UNKNOWN
+    unit: kg
+    source: PENDIENTE
+    ref: QUE-06
+    notes: "Pesar el cilindro antes y despues"
+
+# -----------------------------------------------------------------------------
+# 10. SEGURIDAD  (P1 - baseline)
+# -----------------------------------------------------------------------------
+seguridad:
+  guarda_eje:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+    notes: "Problema P-07. Eje rotativo accesible"
+
+  paro_emergencia:
+    value: false
+    unit: "-"
+    source: OBSERVADO
+    notes: "Problema P-08. Confirmar en SEG-01"
+
+  proteccion_electrica:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: SEG-01
+
+  puesta_a_tierra:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: SEG-02
+    notes: "La placa del motor lo exige expresamente"
+
+  ventilacion_local:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    ref: SEG-03
+    notes: "Relevante: hay GLP"
+
+  manguera_zona_paso:
+    value: true
+    unit: "-"
+    source: OBSERVADO
+    notes: "Problema P-10"
+
+# -----------------------------------------------------------------------------
+# 11. CRITERIOS DE DISENO  (para P2, FASE 3)
+# -----------------------------------------------------------------------------
+diseno:
+  factor_seguridad_estructural:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    notes: "A fijar en FASE 3. Tipico 2.0-3.0 en maquinaria de proceso"
+
+  factor_seguridad_eje:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    notes: "A fijar en FASE 3"
+
+  factor_servicio_motor:
+    value: UNKNOWN
+    unit: "-"
+    source: PENDIENTE
+    notes: "A fijar en FASE 3. Mezcla de pasta espesa con arranque en carga pide 1.5-2.0"
+
+  vida_rodamientos_L10:
+    value: UNKNOWN
+    unit: h
+    source: PENDIENTE
+    notes: "A fijar en FASE 3"
