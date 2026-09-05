@@ -2,31 +2,31 @@
 # -*- coding: utf-8 -*-
 """
 =============================================================================
- MODELO BLENDER - PROTOTIPO 2 PARA 30 kg
+ MODELO BLENDER - PROTOTIPO 2 PARA 30 kg   (rev. 2 - impulsor corregido)
  Mezcladora-cocedora de porcelana fria  ·  Quito, Ecuador
 =============================================================================
 
-QUE MUESTRA
------------
-Modelo conceptual del P2 y de COMO SE ACOPLA con el bastidor existente.
-La arquitectura sale de calculations/sizing_30kg.py, no al reves.
+QUE CAMBIO RESPECTO A LA rev. 1  (ver reports/mezclado.txt)
 
-ARQUITECTURA:  "torre nueva sobre base existente"
+  1. IMPULSOR. Fuera el ancla con travesano. El criterio de arco de Jenike
+     demostro que esta masa puentea cualquier abertura que quepa en la olla:
+     el travesano se empaqueta y el conjunto gira como un tapon solido.
+     Entra CINTA HELICOIDAL doble: helice abierta, sin travesanos, sin lazos
+     cerrados, sin superficies horizontales. Bombea por desplazamiento
+     positivo, como un tornillo.
 
-  El hallazgo que la justifica: a 30 kg hay DOS caminos de carga muy
-  distintos, y meterlos por la misma estructura es lo que rompe el bastidor.
+  2. ESTRUCTURA. Fuera las torres grandes. El par de reaccion circula en
+     lazo cerrado motor->eje->masa->olla->collar->motor. Se cierra ese lazo
+     con un COLLAR DE PAR compacto que abraza la olla y sube en posts cortos
+     al plato del motor. El bastidor existente vuelve a llevar SOLO PESO, y
+     con peso va sobrado. La olla se apoya en la mesa, como en el proto real.
 
-    CAMINO A  recipiente lleno, ~70 kg, carga estatica y vertical
-    CAMINO B  motorreductor 65 kg MAS 548 N.m de par de reaccion,
-              que es torsion pulsante, no peso
+  3. TOPES ANTIGIRO. La olla se atornilla al collar con topes: sin ellos, con
+     este par, la olla giraria con la masa. Obligatorio.
 
-  El bastidor actual lleva bien A y no lleva B ni de lejos. Asi que se
-  separan: el bastidor viejo se queda con lo que ya sabe hacer (sostener
-  el quemador y dar arriostramiento lateral) y una torre nueva de tubo
-  75x75x4 se lleva el recipiente y el accionamiento directamente al piso.
-
-  El recipiente ATRAVIESA el vano del bastidor viejo. Por eso BAS-06 (el
-  lado del vano) es la medida que decide si este acople es posible.
+  4. BOCA DE CARGA DE SOLIDOS con tamiz: la maicena entra en frio, tamizada y
+     bajo el nivel de liquido. A 30 rpm ningun impulsor deshace un grumo ya
+     formado; solo cabe evitar que se forme.
 
 UNIDADES: metros en Blender, milimetros en los parametros.
 
@@ -35,7 +35,7 @@ USO
     pip3 install bpy
     python3 cad/prototipo_2/blender_p2.py
 
-Salidas en output_blender/: renders PNG, escena .blend y malla .glb
+Salidas en output_blender/
 =============================================================================
 """
 
@@ -47,7 +47,6 @@ import sys
 
 try:
     import bpy
-    import bmesh
     from mathutils import Vector
 except ImportError:
     sys.exit("Falta bpy.  Instalar con:  pip3 install bpy")
@@ -58,119 +57,139 @@ SALIDA = os.path.join(RAIZ, "output_blender")
 
 
 # =============================================================================
-# PARAMETROS   (mm)
+# PARAMETROS  (mm)
 # =============================================================================
 
 class P:
-    # --- bastidor EXISTENTE  [SUPUESTO de foto, pendiente BAS-01..BAS-08] ---
+    # --- bastidor EXISTENTE  [SUPUESTO de foto, pendiente BAS-01..08] -------
     v_tubo = 40.0
     v_mesa_x = 450.0
     v_mesa_y = 450.0
-    v_mesa_z = 720.0
-    v_vano = 300.0          # lado del vano  [SUPUESTO] <- BAS-06 lo confirma
+    v_mesa_z = 720.0            # cara superior de la mesa = apoyo de la olla
+    v_vano = 340.0             # abertura por la que el quemador ve la camisa
     v_travesano_z = 180.0
-    v_columna_h = 620.0     # columna que se conserva como soporte de panel
 
-    # --- torre NUEVA  [DISENIO, del bloque 6 de sizing_30kg.py] -------------
-    n_tubo = 75.0           # patas 75x75x4 -> 2553 N.m adm, frente a 548
-    # Travesanos en 60x60x3 (1238 N.m adm, sigue holgado). No es solo peso:
-    # si los horizontales fueran del mismo lado que las patas, sus caras
-    # quedarian COINCIDENTES con las de la pata y el render sale con parches
-    # negros por z-fighting. Seccion distinta = caras distintas.
-    n_tubo_h = 60.0
-    n_pata_x = 330.0        # separacion de patas en X (fuera del bastidor)
-    n_pata_y = 330.0        # separacion en Y
-    n_altura = 1750.0       # cara superior de las patas
-    n_viga = 75.0
-    n_placa_base = 220.0
-    n_placa_esp = 12.0
+    # --- columna trasera reforzada  [DISENIO] -------------------------------
+    # Se conserva el concepto de columna + brazo del proto real. Solo lleva
+    # PESO del accionamiento (el par ya no pasa por aqui), asi que basta
+    # subir un escalon de perfil: 50x50 en vez de 40x40.
+    col_tubo = 50.0
+    col_y = 225.0              # posicion trasera de la columna
+    col_top = 1560.0          # cara superior del brazo del motor
+    brazo_largo = 300.0
 
-    # --- recipiente  [CALCULADO en sizing_30kg.py] --------------------------
-    r_d_int = 280.0
-    r_h_int = 652.0
+    # --- recipiente, angosto y alto  [DISENIO/CALCULADO] --------------------
+    # D = 300 mm. Con la cinta haciendo circulacion axial forzada se relaja un
+    # poco frente al ancla, pero se mantiene angosto por la termica.
+    r_d_int = 300.0
+    r_h_int = 650.0
     r_esp = 2.0
     r_gap_camisa = 20.0
-    r_h_masa = 424.0        # altura del lote de 30 kg
-    r_cradle_z = 1006.0     # cota del aro de cuna = boca de carga
-    # La camisa debe cubrir TODO el nivel de masa mas un margen. Si se queda
-    # corta, la franja superior del lote no recibe calor por la pared y es
-    # justo donde se queda cruda.
-    r_camisa_h = 490.0      # altura mojada de la camisa
+    r_h_masa = 419.0          # lote de 30 kg de PRODUCTO (rev. carga pendiente)
+    r_z_fondo = 726.0         # fondo interior; la olla se apoya en la mesa
+    r_camisa_h = 470.0
 
-    # --- agitador y eje  [DISENIO] ------------------------------------------
-    eje_d = 50.0            # Ø50: flecha 0.49 mm < luz de raspador 1.5 mm
-    ancla_barra = 30.0
-    ancla_esp = 14.0
-    rasp_esp = 10.0
+    # --- cinta helicoidal  [DISENIO] ----------------------------------------
+    eje_d = 45.0
+    ci_vueltas = 1.6
+    ci_ancho = 28.0           # ancho radial del fleje
+    ci_esp = 6.0              # espesor del fleje
+    ci_gap = 4.0              # luz fleje -> pared (antes del raspador)
+    rasp_esp = 8.0
     rasp_gap = 1.5
-    ancla_fondo = 8.0
-    cubo_d = 95.0
+    ci_z0_off = 12.0          # arranque sobre el fondo
+    hub_d = 60.0
+    brazo_ci = 16.0           # seccion de los brazos hub->fleje
 
-    # --- motorreductor  [SUPUESTO, envolvente NMRV110 + 2.2 kW] -------------
+    # --- collar de par  [DISENIO] -------------------------------------------
+    collar_z = 1376.0         # abraza la olla cerca del borde
+    collar_esp = 16.0
+    collar_ext = 400.0
+    post_n = 4
+    post_sec = 40.0
+    plato_z = 1500.0
+    plato = 320.0
+    plato_esp = 14.0
+
+    # --- topes antigiro  [DISENIO] ------------------------------------------
+    tope_n = 3
+    tope_sec = 28.0
+
+    # --- motorreductor  [SUPUESTO, 2.2 kW + NMRV110] ------------------------
     red_x = 230.0
     red_y = 210.0
-    red_z = 240.0
+    red_z = 235.0
     mot_d = 165.0
-    mot_l = 330.0
+    mot_l = 320.0
 
-    # --- quemador  [DISENIO, 31 kBTU/h de anillo industrial] ----------------
-    q_d = 240.0
+    # --- boca de carga de solidos con tamiz  [DISENIO] ----------------------
+    chute_d = 120.0
+    chute_len = 260.0
+
+    # --- quemador  [DISENIO, anillo industrial ~31 kBTU/h] ------------------
+    q_d = 250.0
     q_tubo = 18.0
-    q_z = 230.0
 
-    # --- derivados -----------------------------------------------------------
     @classmethod
     def calc(cls):
         cls.r_r_int = cls.r_d_int / 2
         cls.r_r_ext = cls.r_r_int + cls.r_esp
         cls.c_r_int = cls.r_r_ext + cls.r_gap_camisa
         cls.c_r_ext = cls.c_r_int + cls.r_esp
-        cls.r_z_fondo = cls.r_cradle_z - cls.r_h_int      # fondo interior
-        cls.c_z_fondo = cls.r_z_fondo - 30.0 - cls.r_esp  # fondo de camisa
-        cls.eje_z_top = cls.n_altura + cls.n_viga + cls.n_placa_esp + 40
-        cls.eje_z_bot = cls.r_z_fondo + cls.ancla_fondo
+        cls.c_z_fondo = cls.r_z_fondo - cls.r_esp - 25.0 - cls.r_esp
+        cls.q_z = cls.c_z_fondo - 80.0
+        cls.rim_z = cls.r_z_fondo + cls.r_h_int
+        cls.ci_z0 = cls.r_z_fondo + cls.ci_z0_off
+        cls.ci_z1 = cls.r_z_fondo + cls.r_h_masa + 40.0
+        cls.ci_r = cls.r_r_int - cls.ci_gap - cls.rasp_esp - cls.ci_ancho / 2
+        cls.eje_z_top = cls.plato_z + cls.plato_esp + 30.0
+        cls.eje_z_bot = cls.ci_z0
 
 
 P.calc()
 
 
-def comprobar_vano() -> dict:
-    """
-    El recipiente ATRAVIESA el vano del bastidor viejo. Si no pasa, este
-    esquema de acople no funciona. Es la comprobacion que decide todo.
-    """
-    d_ext = 2 * P.c_r_ext
-    holgura = 12.0                      # luz de montaje por lado
-    necesario = d_ext + 2 * holgura
-    pasa = P.v_vano >= necesario
-    return {"d_ext": d_ext, "necesario": necesario,
-            "vano_supuesto": P.v_vano, "pasa": pasa}
-
-
 # =============================================================================
-# UTILIDADES
+# MATERIALES
 # =============================================================================
 
-def limpiar():
-    bpy.ops.wm.read_factory_settings(use_empty=True)
+class M:
+    pass
 
 
 def material(nombre, color, metal=0.0, rug=0.5, alpha=1.0, emision=0.0):
     m = bpy.data.materials.new(nombre)
     m.use_nodes = True
-    bsdf = m.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (*color, alpha)
-    bsdf.inputs["Metallic"].default_value = metal
-    bsdf.inputs["Roughness"].default_value = rug
-    if "Alpha" in bsdf.inputs:
-        bsdf.inputs["Alpha"].default_value = alpha
-    if emision > 0 and "Emission Color" in bsdf.inputs:
-        bsdf.inputs["Emission Color"].default_value = (*color, 1.0)
-        bsdf.inputs["Emission Strength"].default_value = emision
-    if alpha < 1.0:
-        m.blend_method = 'BLEND' if hasattr(m, "blend_method") else m.blend_method
+    b = m.node_tree.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value = (*color, alpha)
+    b.inputs["Metallic"].default_value = metal
+    b.inputs["Roughness"].default_value = rug
+    if "Alpha" in b.inputs:
+        b.inputs["Alpha"].default_value = alpha
+    if emision > 0 and "Emission Color" in b.inputs:
+        b.inputs["Emission Color"].default_value = (*color, 1.0)
+        b.inputs["Emission Strength"].default_value = emision
     return m
 
+
+def crear_materiales():
+    M.viejo = material("bastidor_existente", (0.045, 0.045, 0.05), 0.5, 0.60)
+    M.nuevo = material("torque_frame", (0.09, 0.34, 0.62), 0.5, 0.35)
+    M.inox = material("inox_304", (0.62, 0.65, 0.70), 1.0, 0.18)
+    M.cinta = material("cinta_inox", (0.70, 0.73, 0.78), 1.0, 0.22)
+    M.agua = material("agua_camisa", (0.05, 0.38, 0.72), 0.0, 0.65)
+    M.masa = material("masa", (0.93, 0.71, 0.30), 0.0, 0.90)
+    M.ptfe = material("ptfe", (0.95, 0.95, 0.93), 0.0, 0.35)
+    M.motor = material("motorreductor", (0.28, 0.29, 0.30), 0.8, 0.45)
+    M.fuego = material("quemador", (0.95, 0.42, 0.10), 0.3, 0.50, emision=2.0)
+    M.piso = material("piso", (0.55, 0.53, 0.50), 0.0, 0.85)
+    M.flujo = material("flecha_masa", (0.04, 0.45, 0.20), 0.0, 0.4, emision=0.9)
+    M.calor = material("flecha_calor", (0.90, 0.15, 0.10), 0.0, 0.4, emision=0.9)
+
+
+# =============================================================================
+# UTILIDADES
+# =============================================================================
 
 def poner_mat(ob, mat):
     ob.data.materials.clear()
@@ -178,7 +197,6 @@ def poner_mat(ob, mat):
 
 
 def caja(nombre, sx, sy, sz, x, y, z, mat):
-    """Prisma recto. sx,sy,sz son dimensiones completas en mm."""
     bpy.ops.mesh.primitive_cube_add(size=1, location=(x * MM, y * MM, z * MM))
     ob = bpy.context.object
     ob.name = nombre
@@ -189,7 +207,6 @@ def caja(nombre, sx, sy, sz, x, y, z, mat):
 
 
 def cilindro(nombre, r, h, x, y, z, mat, verts=64):
-    """Cilindro con la BASE en z (no centrado)."""
     bpy.ops.mesh.primitive_cylinder_add(radius=r * MM, depth=h * MM,
                                         vertices=verts,
                                         location=(x * MM, y * MM,
@@ -198,6 +215,12 @@ def cilindro(nombre, r, h, x, y, z, mat, verts=64):
     ob.name = nombre
     poner_mat(ob, mat)
     return ob
+
+
+def tubo_v(nombre, lado, largo, x, y, z0, mat):
+    """Tramo de tubo cuadrado hueco vertical, base en z0."""
+    ext = caja(nombre, lado, lado, largo, x, y, z0 + largo / 2, mat)
+    return ext
 
 
 def toro(nombre, r_may, r_men, z, mat):
@@ -212,18 +235,18 @@ def toro(nombre, r_may, r_men, z, mat):
 
 
 def booleano(objetivo, herramienta, op='DIFFERENCE'):
-    m = objetivo.modifiers.new("bool", 'BOOLEAN')
-    m.operation = op
-    m.object = herramienta
-    m.solver = 'EXACT'
+    md = objetivo.modifiers.new("bool", 'BOOLEAN')
+    md.operation = op
+    md.object = herramienta
+    md.solver = 'EXACT'
     bpy.context.view_layer.objects.active = objetivo
-    bpy.ops.object.modifier_apply(modifier=m.name)
+    bpy.ops.object.modifier_apply(modifier=md.name)
     bpy.data.objects.remove(herramienta, do_unlink=True)
     return objetivo
 
 
 def unir(objs, nombre):
-    """Une una lista de objetos en uno solo."""
+    objs = [o for o in objs if o is not None]
     bpy.ops.object.select_all(action='DESELECT')
     for o in objs:
         o.select_set(True)
@@ -234,18 +257,13 @@ def unir(objs, nombre):
     return ob
 
 
+def anillo(nombre, r_ext, r_int, h, z, mat, verts=64):
+    ext = cilindro(nombre, r_ext, h, 0, 0, z, mat, verts)
+    hueco = cilindro(nombre + "_h", r_int, h + 20, 0, 0, z - 10, mat, verts)
+    return booleano(ext, hueco)
+
+
 def sector_anular(nombre, r_ext, r_int, h, z, a0, a1, mat, n=48):
-    """
-    Sector anular solido, construido vertice a vertice.
-
-    Para la vista en corte NO se usa booleano: un booleano sobre mallas que
-    ya vienen de otros booleanos degenera y llega a borrar la pieza entera
-    (paso con la camisa y con el agua). Una seccion se construye como
-    seccion, y ademas asi las caras de corte quedan planas y limpias.
-
-    a0 y a1 en grados. Se conserva el semiespacio y > 0, que es el que la
-    camara ve por dentro cuando mira desde -Y.
-    """
     vs, fs = [], []
     for i in range(n + 1):
         ang = math.radians(a0 + (a1 - a0) * i / n)
@@ -253,16 +271,11 @@ def sector_anular(nombre, r_ext, r_int, h, z, a0, a1, mat, n=48):
         for r, zz in ((r_ext, z), (r_int, z), (r_ext, z + h), (r_int, z + h)):
             vs.append((r * ca * MM, r * sa * MM, zz * MM))
     for i in range(n):
-        ob, ib, ot, it = 4 * i, 4 * i + 1, 4 * i + 2, 4 * i + 3
-        ob2, ib2, ot2, it2 = ob + 4, ib + 4, ot + 4, it + 4
-        fs.append((ob, ob2, ot2, ot))        # cara exterior
-        fs.append((ib, it, it2, ib2))        # cara interior
-        fs.append((ot, ot2, it2, it))        # tapa superior
-        fs.append((ob, ib, ib2, ob2))        # tapa inferior
-    ult = 4 * n
-    fs.append((0, 2, 3, 1))                                  # cara de corte a0
-    fs.append((ult, ult + 1, ult + 3, ult + 2))              # cara de corte a1
-
+        b, b2 = 4 * i, 4 * i + 4
+        fs += [(b, b2, b2 + 2, b + 2), (b + 1, b + 3, b2 + 3, b2 + 1),
+               (b + 2, b2 + 2, b2 + 3, b + 3), (b, b + 1, b2 + 1, b2)]
+    e = 4 * n
+    fs += [(0, 2, 3, 1), (e, e + 1, e + 3, e + 2)]
     me = bpy.data.meshes.new(nombre)
     me.from_pydata(vs, [], fs)
     me.validate()
@@ -273,361 +286,44 @@ def sector_anular(nombre, r_ext, r_int, h, z, a0, a1, mat, n=48):
     return ob
 
 
-def anillo(nombre, r_ext, r_int, h, z, mat, verts=64):
-    """Cilindro hueco: se hace por diferencia para que quede solido real."""
-    ext = cilindro(nombre, r_ext, h, 0, 0, z, mat, verts)
-    hueco = cilindro(nombre + "_h", r_int, h + 20, 0, 0, z - 10,
-                     mat, verts)
-    return booleano(ext, hueco)
+def helice(nombre, r_centro, ancho, esp, z0, z1, vueltas, fase, mat, n=180):
+    """
+    Fleje helicoidal solido. Se construye vertice a vertice: es la unica
+    forma de tener una helice limpia, y ademas asi el fleje es una superficie
+    ABIERTA sin lazos cerrados, que es justo lo que exige el criterio de arco.
+    """
+    vs, fs = [], []
+    H = z1 - z0
+    rin, rout = r_centro - ancho / 2, r_centro + ancho / 2
+    for i in range(n + 1):
+        f = i / n
+        ang = fase + vueltas * 2 * math.pi * f
+        z = z0 + H * f
+        ca, sa = math.cos(ang), math.sin(ang)
+        for r, dz in ((rin, -esp / 2), (rout, -esp / 2),
+                      (rin, esp / 2), (rout, esp / 2)):
+            vs.append((r * ca * MM, r * sa * MM, (z + dz) * MM))
+    for i in range(n):
+        b, b2 = 4 * i, 4 * i + 4
+        fs += [(b, b + 1, b2 + 1, b2),          # cara inferior
+               (b + 2, b2 + 2, b2 + 3, b + 3),  # cara superior
+               (b + 1, b + 3, b2 + 3, b2 + 1),  # canto exterior
+               (b, b2, b2 + 2, b + 2)]          # canto interior
+    e = 4 * n
+    fs += [(0, 1, 3, 2), (e, e + 2, e + 3, e + 1)]
+    me = bpy.data.meshes.new(nombre)
+    me.from_pydata(vs, [], fs)
+    me.validate()
+    me.update()
+    ob = bpy.data.objects.new(nombre, me)
+    bpy.context.collection.objects.link(ob)
+    poner_mat(ob, mat)
+    return ob
 
 
 # =============================================================================
-# MATERIALES
+# PIEZAS
 # =============================================================================
-
-class M:
-    pass
-
-
-def crear_materiales():
-    # Contraste alto y deliberado: de un vistazo hay que distinguir lo que
-    # se conserva de lo que se fabrica. En seccion, los fluidos van OPACOS:
-    # una seccion tecnica con transparencias no se lee.
-    M.viejo = material("bastidor_existente", (0.045, 0.045, 0.05), 0.5, 0.60)
-    M.nuevo = material("torre_nueva", (0.09, 0.34, 0.62), 0.5, 0.35)
-    M.inox = material("inox_304", (0.62, 0.65, 0.70), 1.0, 0.18)
-    M.agua = material("agua_camisa", (0.05, 0.38, 0.72), 0.0, 0.65)
-    M.masa = material("masa", (0.93, 0.71, 0.30), 0.0, 0.90)
-    M.ptfe = material("ptfe", (0.95, 0.95, 0.93), 0.0, 0.35)
-    M.motor = material("motorreductor", (0.28, 0.29, 0.30), 0.8, 0.45)
-    M.fuego = material("quemador", (0.95, 0.42, 0.10), 0.3, 0.50, emision=2.0)
-    M.piso = material("piso", (0.55, 0.53, 0.50), 0.0, 0.85)
-    # Verde para la circulacion de la masa: sobre masa beige, agua azul y
-    # calor rojo, es el unico color que no se confunde con nada.
-    M.flecha_masa = material("flecha_masa", (0.04, 0.45, 0.20), 0.0, 0.4,
-                             emision=0.9)
-    M.flecha_calor = material("flecha_calor", (0.90, 0.15, 0.10), 0.0, 0.4,
-                              emision=1.2)
-
-
-# =============================================================================
-# GEOMETRIA
-# =============================================================================
-
-def bastidor_existente():
-    """
-    SE CONSERVA. Pasa a ser el modulo base: sostiene el quemador y arriostra
-    lateralmente la torre nueva. El recipiente lo ATRAVIESA por el vano.
-    Unico corte: el brazo original en voladizo, que estorba al eje nuevo.
-    """
-    t = P.v_tubo
-    x = P.v_mesa_x / 2 - t / 2
-    y = P.v_mesa_y / 2 - t / 2
-    h = P.v_mesa_z - t
-    partes = []
-
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            partes.append(caja(f"vp{sx}{sy}", t, t, h, sx * x, sy * y, h / 2,
-                               M.viejo))
-    # marco superior
-    for sy in (-1, 1):
-        partes.append(caja(f"vmx{sy}", P.v_mesa_x, t, t, 0, sy * y,
-                           P.v_mesa_z - t / 2, M.viejo))
-    for sx in (-1, 1):
-        partes.append(caja(f"vmy{sx}", t, P.v_mesa_y - 2 * t, t, sx * x, 0,
-                           P.v_mesa_z - t / 2, M.viejo))
-    # travesanos inferiores
-    for sy in (-1, 1):
-        partes.append(caja(f"vt{sy}", P.v_mesa_x, t, t, 0, sy * y,
-                           P.v_travesano_z, M.viejo))
-    # columna original: se conserva, ahora soporta el panel de control
-    partes.append(caja("vcol", t, t, P.v_columna_h, 0, y,
-                       P.v_mesa_z + P.v_columna_h / 2, M.viejo))
-    # soporte del quemador
-    for sy in (-1, 1):
-        partes.append(caja(f"vq{sy}", P.v_mesa_x - 2 * t, t, t, 0,
-                           sy * (P.v_vano / 2 + t), P.q_z - 60, M.viejo))
-
-    return unir(partes, "01_bastidor_EXISTENTE")
-
-
-def torre_nueva():
-    """
-    NUEVA. Tubo 75x75x4. Cuatro patas al piso, viga superior para el
-    motorreductor y aro de cuna a 1006 mm del que cuelga el recipiente.
-    Se atornilla al bastidor viejo a la altura de la mesa: el viejo le da
-    arriostramiento lateral y ella le lleva la carga al piso.
-    """
-    t = P.n_tubo
-    x, y = P.n_pata_x, P.n_pata_y
-    partes = []
-
-    # 4 patas + placas de base ancladas al piso
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            partes.append(caja(f"np{sx}{sy}", t, t, P.n_altura,
-                               sx * x, sy * y, P.n_altura / 2, M.nuevo))
-            partes.append(caja(f"nb{sx}{sy}", P.n_placa_base, P.n_placa_base,
-                               P.n_placa_esp, sx * x, sy * y,
-                               P.n_placa_esp / 2, M.nuevo))
-
-    # NOTA DE MODELADO: cada travesano se hace de largo 2*x, de modo que sus
-    # extremos quedan DENTRO del volumen de las patas. Si se hicieran a ras,
-    # las caras coincidirian con las de la pata y el render sale con parches
-    # negros por z-fighting. Es un detalle de modelado, no de diseno.
-    largo_x, largo_y = 2 * x, 2 * y
-    th = P.n_tubo_h
-    zc = P.r_cradle_z
-    z_arr = P.v_mesa_z - P.v_tubo / 2
-
-    # Los miembros del plano DELANTERO (y = -330) van a un objeto aparte:
-    # se ocultan en la vista en seccion para dejar ver el interior, igual
-    # que en un dibujo tecnico se retira lo que esta delante del corte.
-    frente = []
-
-    # viga superior: largueros en Y + travesano central donde va el motor
-    for sx in (-1, 1):
-        partes.append(caja(f"nv{sx}", th, largo_y, th, sx * x, 0,
-                           P.n_altura + t / 2, M.nuevo))
-    partes.append(caja("nvc", largo_x, th, th, 0, 0,
-                       P.n_altura + t / 2, M.nuevo))
-
-    # marco del aro de cuna, a la altura de la boca de carga
-    partes.append(caja("ncx_pos", largo_x, th, th, 0, y, zc, M.nuevo))
-    frente.append(caja("ncx_neg", largo_x, th, th, 0, -y, zc, M.nuevo))
-    for sx in (-1, 1):
-        partes.append(caja(f"ncy{sx}", th, largo_y, th, sx * x, 0, zc,
-                           M.nuevo))
-
-    # arriostramiento a la altura de la mesa: aqui se atornilla al viejo
-    partes.append(caja("nax_pos", largo_x, th, th, 0, y, z_arr, M.nuevo))
-    frente.append(caja("nax_neg", largo_x, th, th, 0, -y, z_arr, M.nuevo))
-
-    torre = unir(partes, "02_torre_NUEVA")
-    unir(frente, "02b_torre_frente")
-
-    # aro de cuna: placa con agujero por el que cuelga el recipiente
-    aro = caja("aro", 2 * x, 2 * y, 14.0, 0, 0, zc + t / 2 + 7, M.nuevo)
-    hueco = cilindro("aro_h", P.c_r_ext + 4, 60, 0, 0, zc, M.nuevo)
-    aro = booleano(aro, hueco)
-    return unir([torre, aro], "02_torre_NUEVA")
-
-
-def recipiente():
-    """Olla interior de proceso, inox 304, Ø280 x 652 interior."""
-    olla = anillo("olla", P.r_r_ext, P.r_r_int, P.r_h_int, P.r_z_fondo, M.inox)
-    fondo = cilindro("olla_f", P.r_r_ext, P.r_esp, 0, 0,
-                     P.r_z_fondo - P.r_esp, M.inox)
-    pest = anillo("olla_p", P.c_r_ext + 22, P.r_r_ext, 12,
-                  P.r_cradle_z - 12, M.inox)
-    return unir([olla, fondo, pest], "03_olla_interior")
-
-
-def camisa():
-    """
-    CAMISA. Envolvente del bano. Se disena como camisa, no como 'camisa de
-    agua': la misma chapa admite agua (hasta ~85 degC utiles en Quito) o
-    aceite termico si la medida de PRO-05 obliga a subir de temperatura.
-    Esa es la decision reversible del bloque 7 del dimensionamiento.
-    """
-    h = P.r_camisa_h
-    env = anillo("cam", P.c_r_ext, P.c_r_int, h, P.c_z_fondo, M.inox)
-    fondo = cilindro("cam_f", P.c_r_ext, P.r_esp, 0, 0,
-                     P.c_z_fondo - P.r_esp, M.inox)
-    corona = anillo("cam_c", P.c_r_ext, P.r_r_ext, P.r_esp,
-                    P.c_z_fondo + h, M.inox)
-    # venteo: OBLIGATORIO y sin tapon. Sin el, esto deja de ser bano maria
-    # abierto y pasa a ser un recipiente a presion.
-    vent = cilindro("vent", 9, 110, P.c_r_int + P.r_gap_camisa / 2 - 4, 0,
-                    P.c_z_fondo + h, M.inox, 24)
-    llen = cilindro("llen", 12, 80, -(P.c_r_int + P.r_gap_camisa / 2 - 4), 0,
-                    P.c_z_fondo + h, M.inox, 24)
-    return unir([env, fondo, corona, vent, llen], "04_camisa")
-
-
-def fluido_camisa():
-    """El agua del bano, para que se vea el circuito."""
-    h = P.r_camisa_h - 40
-    ag = anillo("agua", P.c_r_int, P.r_r_ext, h, P.c_z_fondo, M.agua)
-    base = cilindro("agua_b", P.c_r_int, 30, 0, 0, P.c_z_fondo - 30, M.agua)
-    return unir([ag, base], "05_agua_camisa")
-
-
-def masa():
-    """El lote de 30 kg, a su altura real de llenado."""
-    m = cilindro("masa", P.r_r_int - 1, P.r_h_masa, 0, 0, P.r_z_fondo, M.masa)
-    return m
-
-
-def eje():
-    largo = P.eje_z_top - P.eje_z_bot
-    return cilindro("06_eje", P.eje_d / 2, largo, 0, 0, P.eje_z_bot,
-                    M.inox, 32)
-
-
-def ancla():
-    """
-    ANCLA CON TRAVESANO INTERMEDIO.
-    Con h/D = 1.51 el ancla simple deja el nucleo girando como un tapon, que
-    es justo el defecto que hoy produce 'centro crudo'. El travesano a media
-    altura arrastra ese nucleo.
-    """
-    ra = P.r_r_int - P.rasp_gap - P.rasp_esp
-    w, b = P.ancla_esp, P.ancla_barra
-    zb = P.r_z_fondo + P.ancla_fondo
-    zt = zb + P.r_h_masa + 110
-    partes = []
-    for sx in (-1, 1):
-        partes.append(caja(f"av{sx}", w, b, zt - zb - b,
-                           sx * (ra - w / 2), 0, (zb + b + zt) / 2, M.inox))
-    partes.append(caja("ab", 2 * ra, b, w, 0, 0, zb + w / 2, M.inox))
-    partes.append(caja("at", 2 * (ra - w / 2), b, w, 0, 0, zt - w / 2, M.inox))
-    # travesano intermedio: el que arrastra el nucleo
-    partes.append(caja("ai", 2 * (ra - w), b * 0.8, w * 0.8, 0, 0,
-                       zb + P.r_h_masa * 0.45, M.inox))
-    cubo = anillo("acubo", P.cubo_d / 2, P.eje_d / 2, 70, zt - 70, M.inox, 32)
-    partes.append(cubo)
-    return unir(partes, "07_ancla")
-
-
-def raspadores():
-    """PTFE con luz de 1.5 mm. Pieza de desgaste: se cambia, no se rectifica."""
-    ra = P.r_r_int - P.rasp_gap - P.rasp_esp
-    b = P.ancla_barra
-    zb = P.r_z_fondo + P.ancla_fondo
-    zt = zb + P.r_h_masa + 110
-    partes = []
-    for sx in (-1, 1):
-        partes.append(caja(f"rv{sx}", P.rasp_esp, b, zt - zb - b,
-                           sx * (ra + P.rasp_esp / 2), 0,
-                           (zb + b + zt) / 2, M.ptfe))
-    partes.append(caja("rb", 2 * ra, b, P.rasp_esp, 0, 0,
-                       zb - P.rasp_esp / 2, M.ptfe))
-    return unir(partes, "08_raspadores_PTFE")
-
-
-def motorreductor():
-    z0 = P.n_altura + P.n_viga
-    placa = caja("mplaca", 300, 300, P.n_placa_esp, 0, 0,
-                 z0 + P.n_placa_esp / 2, M.nuevo)
-    z1 = z0 + P.n_placa_esp
-    red = caja("mred", P.red_x, P.red_y, P.red_z, 0, 0,
-               z1 + P.red_z / 2, M.motor)
-    bpy.ops.mesh.primitive_cylinder_add(
-        radius=P.mot_d / 2 * MM, depth=P.mot_l * MM, vertices=32,
-        rotation=(math.pi / 2, 0, 0),
-        location=(0, (P.red_y / 2 + P.mot_l / 2) * MM,
-                  (z1 + P.red_z * 0.6) * MM))
-    mot = bpy.context.object
-    mot.name = "mmot"
-    poner_mat(mot, M.motor)
-    return unir([placa, red, mot], "09_motorreductor")
-
-
-def guia_eje():
-    """
-    Segundo apoyo del eje, en el aro de cuna. Sin el, el eje vuela 1.4 m
-    desde el motor y la flecha se come la luz de 1.5 mm del raspador.
-    """
-    zc = P.r_cradle_z + P.n_tubo / 2 + 14
-    barra = caja("gb", 2 * (P.c_r_ext + 10), 60, 14, 0, 0, zc + 55, M.nuevo)
-    pies = []
-    for sx in (-1, 1):
-        pies.append(caja(f"gp{sx}", 50, 60, 48,
-                         sx * (P.c_r_ext - 10), 0, zc + 24, M.nuevo))
-    cubo = anillo("gc", (P.eje_d + 38) / 2, (P.eje_d + 1) / 2, 60,
-                  zc + 32, M.nuevo, 32)
-    return unir([barra] + pies + [cubo], "10_apoyo_guia_eje")
-
-
-def quemador():
-    """Anillo industrial de ~31 kBTU/h, con inyector para altura."""
-    an = toro("q_anillo", P.q_d / 2, P.q_tubo / 2, P.q_z, M.fuego)
-    bpy.ops.mesh.primitive_cylinder_add(
-        radius=P.q_tubo / 2 * MM, depth=320 * MM, vertices=16,
-        rotation=(0, math.pi / 2, 0),
-        location=(-(P.q_d / 2 + 160) * MM, 0, P.q_z * MM))
-    al = bpy.context.object
-    poner_mat(al, M.fuego)
-    return unir([an, al], "11_quemador")
-
-
-def flechas():
-    """
-    Flechas de proceso: naranja = circulacion de la masa,
-    rojo = entrada de calor. Solo para el corte explicativo.
-    """
-    out = []
-
-    def flecha(x, y, z, dz, mat, r=9.0, nombre="f"):
-        cuerpo = cilindro(nombre, r, abs(dz), x, y, z if dz > 0 else z + dz,
-                          mat, 16)
-        bpy.ops.mesh.primitive_cone_add(
-            radius1=r * 2.2 * MM, depth=34 * MM, vertices=16,
-            rotation=(0 if dz > 0 else math.pi, 0, 0),
-            location=(x * MM, y * MM, ((z + dz) if dz > 0 else z) * MM))
-        p = bpy.context.object
-        poner_mat(p, mat)
-        return unir([cuerpo, p], nombre)
-
-    # Todas las flechas van a y = -45 mm, POR DELANTE del plano de corte:
-    # si van en y = 0 quedan medio enterradas en la cara de seccion.
-    yf = -45.0
-
-    # masa: sube pegada a la pared, que es donde entra el calor
-    out.append(flecha(P.r_r_int * 0.70, yf, P.r_z_fondo + 50, 300,
-                      M.flecha_masa, nombre="fm1"))
-    # masa: baja por el centro, arrastrada por el travesano intermedio
-    out.append(flecha(P.r_r_int * 0.20, yf, P.r_z_fondo + 380, -300,
-                      M.flecha_masa, nombre="fm2"))
-    # calor: del quemador al agua de la camisa
-    out.append(flecha(P.c_r_int - 6, yf, P.c_z_fondo - 90, 170,
-                      M.flecha_calor, r=8, nombre="fc1"))
-    # calor: del agua a la masa, radial hacia dentro
-    for i, zz in enumerate((0.28, 0.58, 0.85)):
-        z = P.r_z_fondo + P.r_h_masa * zz
-        cuerpo = cilindro(f"fcr{i}", 7, 46, 0, 0, 0, M.flecha_calor, 12)
-        cuerpo.rotation_euler = (0, math.pi / 2, 0)
-        cuerpo.location = ((P.r_r_int + 24) * MM, yf * MM, z * MM)
-        out.append(cuerpo)
-    return unir(out, "12_flechas_proceso")
-
-
-def proceso_en_seccion():
-    """
-    Reconstruye olla, camisa, agua y masa como medias piezas (0..180 grados),
-    dejando a la vista la cara de corte. Eje, ancla y raspadores NO se
-    seccionan: en dibujo tecnico los ejes y las nervaduras nunca se cortan,
-    y ademas asi se entiende mejor lo que hacen.
-    """
-    piezas = []
-    a0, a1 = 0.0, 180.0
-
-    # olla de proceso
-    piezas.append(sector_anular("s_olla", P.r_r_ext, P.r_r_int, P.r_h_int,
-                                P.r_z_fondo, a0, a1, M.inox))
-    piezas.append(sector_anular("s_olla_f", P.r_r_ext, 1.0, P.r_esp,
-                                P.r_z_fondo - P.r_esp, a0, a1, M.inox))
-    # camisa
-    piezas.append(sector_anular("s_cam", P.c_r_ext, P.c_r_int, P.r_camisa_h,
-                                P.c_z_fondo, a0, a1, M.inox))
-    piezas.append(sector_anular("s_cam_f", P.c_r_ext, 1.0, P.r_esp,
-                                P.c_z_fondo - P.r_esp, a0, a1, M.inox))
-    # agua del bano
-    # Medio milimetro de retranqueo a cada lado: si el agua compartiera
-    # superficie con la chapa, las dos caras coincidirian y el render las
-    # mezcla. Es el mismo problema de z-fighting de los travesanos.
-    piezas.append(sector_anular("s_agua", P.c_r_int - 0.5, P.r_r_ext + 0.5,
-                                P.r_camisa_h - 30, P.c_z_fondo,
-                                a0, a1, M.agua))
-    piezas.append(sector_anular("s_agua_f", P.c_r_int, 1.0, 30.0,
-                                P.c_z_fondo - 30, a0, a1, M.agua))
-    # el lote de 30 kg
-    piezas.append(sector_anular("s_masa", P.r_r_int - 1, 1.0, P.r_h_masa,
-                                P.r_z_fondo, a0, a1, M.masa))
-    return piezas
-
 
 def piso():
     bpy.ops.mesh.primitive_plane_add(size=8, location=(0, 0, -0.002))
@@ -637,30 +333,292 @@ def piso():
     return ob
 
 
+def bastidor_existente():
+    """SE CONSERVA. Ahora solo lleva PESO. La olla se apoya en la mesa y el
+    quemador dispara por el vano, como en el proto real."""
+    t = P.v_tubo
+    x = P.v_mesa_x / 2 - t / 2
+    y = P.v_mesa_y / 2 - t / 2
+    h = P.v_mesa_z - t
+    partes = []
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            partes.append(caja(f"p{sx}{sy}", t, t, h, sx * x, sy * y, h / 2,
+                               M.viejo))
+    for sy in (-1, 1):
+        partes.append(caja(f"mx{sy}", P.v_mesa_x, t, t, 0, sy * y,
+                           P.v_mesa_z - t / 2, M.viejo))
+    for sx in (-1, 1):
+        partes.append(caja(f"my{sx}", t, P.v_mesa_y - 2 * t, t, sx * x, 0,
+                           P.v_mesa_z - t / 2, M.viejo))
+    for sy in (-1, 1):
+        partes.append(caja(f"tv{sy}", P.v_mesa_x, t, t, 0, sy * y,
+                           P.v_travesano_z, M.viejo))
+    # soporte del quemador bajo el vano
+    for sx in (-1, 1):
+        partes.append(caja(f"sq{sx}", t, P.v_mesa_y - 2 * t, t, sx * (P.v_vano / 2 + t),
+                           0, P.q_z - 40, M.viejo))
+    return unir(partes, "01_bastidor_EXISTENTE")
+
+
+def columna_reforzada():
+    """Columna trasera + brazo. Se conserva el concepto; sube un escalon de
+    perfil (50x50) porque ahora solo carga el PESO del motor, no el par."""
+    t = P.col_tubo
+    col = tubo_v("col", t, P.col_top - P.v_mesa_z, 0, P.col_y,
+                 P.v_mesa_z, M.nuevo)
+    brazo = caja("brazo", t, P.col_y * 2 + t, t, 0, 0,
+                 P.col_top - t / 2, M.nuevo)
+    return unir([col, brazo], "02_columna_reforzada")
+
+
+def collar_par():
+    """
+    COLLAR DE PAR. El corazon del rediseno estructural. Abraza la olla cerca
+    del borde y sube en posts cortos al plato del motor. Cierra el lazo del
+    par -motor->eje->masa->olla->collar->motor- en un recorrido corto y
+    local, de modo que el par NUNCA sale a la estructura de peso.
+    """
+    partes = []
+    # anillo que abraza la olla
+    partes.append(anillo("collar", P.collar_ext / 2, P.c_r_ext + 3,
+                         P.collar_esp, P.collar_z, M.nuevo))
+    # plato del motor
+    partes.append(caja("plato", P.plato, P.plato, P.plato_esp, 0, 0,
+                       P.plato_z + P.plato_esp / 2, M.nuevo))
+    # posts cortos collar -> plato (lo que reacciona el par)
+    rp = (P.collar_ext / 2 - P.post_sec)
+    for k in range(P.post_n):
+        a = math.pi / 4 + k * math.pi / 2
+        partes.append(caja(f"post{k}", P.post_sec, P.post_sec,
+                           P.plato_z - (P.collar_z + P.collar_esp),
+                           rp * math.cos(a), rp * math.sin(a),
+                           (P.collar_z + P.collar_esp + P.plato_z) / 2,
+                           M.nuevo))
+    return unir(partes, "03_collar_de_par")
+
+
+def topes_antigiro():
+    """Topes que atornillan la olla al collar. Sin ellos la olla gira con la
+    masa. Con este par, no son opcionales."""
+    partes = []
+    r = P.c_r_ext + 1.5
+    for k in range(P.tope_n):
+        a = k * 2 * math.pi / P.tope_n
+        partes.append(caja(f"tope{k}", P.tope_sec, P.tope_sec, 55,
+                           r * math.cos(a), r * math.sin(a),
+                           P.collar_z + 27, M.nuevo))
+    return unir(partes, "04_topes_antigiro")
+
+
+def recipiente():
+    olla = anillo("olla", P.r_r_ext, P.r_r_int, P.r_h_int, P.r_z_fondo, M.inox)
+    fondo = cilindro("olla_f", P.r_r_ext, P.r_esp, 0, 0,
+                     P.r_z_fondo - P.r_esp, M.inox)
+    pest = anillo("olla_p", P.c_r_ext + 20, P.r_r_ext, 12,
+                  P.rim_z - 12, M.inox)
+    return unir([olla, fondo, pest], "05_olla_interior")
+
+
+def camisa():
+    h = P.r_camisa_h
+    env = anillo("cam", P.c_r_ext, P.c_r_int, h, P.c_z_fondo, M.inox)
+    fondo = cilindro("cam_f", P.c_r_ext, P.r_esp, 0, 0,
+                     P.c_z_fondo - P.r_esp, M.inox)
+    corona = anillo("cam_c", P.c_r_ext, P.r_r_ext, P.r_esp,
+                    P.c_z_fondo + h, M.inox)
+    vent = cilindro("vent", 9, 110, P.c_r_int + P.r_gap_camisa / 2 - 4, 0,
+                    P.c_z_fondo + h, M.inox, 24)
+    return unir([env, fondo, corona, vent], "06_camisa")
+
+
+def fluido_camisa():
+    h = P.r_camisa_h - 30
+    ag = anillo("agua", P.c_r_int - 0.5, P.r_r_ext + 0.5, h, P.c_z_fondo,
+                M.agua)
+    base = cilindro("agua_b", P.c_r_int - 0.5, 25, 0, 0, P.c_z_fondo - 25,
+                    M.agua)
+    return unir([ag, base], "07_agua_camisa")
+
+
+def masa():
+    return cilindro("08_masa", P.r_r_int - 1, P.r_h_masa, 0, 0,
+                    P.r_z_fondo, M.masa)
+
+
+def eje():
+    largo = P.eje_z_top - P.eje_z_bot
+    return cilindro("09_eje", P.eje_d / 2, largo, 0, 0, P.eje_z_bot,
+                    M.cinta, 32)
+
+
+def cinta_helicoidal():
+    """
+    CINTA HELICOIDAL DOBLE. Reemplaza al ancla con travesano.
+
+    Dos flejes opuestos, sin ningun travesano ni lazo cerrado: es la
+    condicion que impone el criterio de arco. Unidos al cubo solo por brazos
+    radiales arriba y abajo -brazos, no barras que crucen el volumen-. La
+    helice bombea masa por la pared hacia arriba y la deja caer por el centro:
+    desplazamiento positivo, no conveccion. No hay volumen que pueda quedarse
+    quieto ni cavidad donde la masa haga arco.
+    """
+    partes = []
+    for fase in (0.0, math.pi):
+        partes.append(helice(f"fleje{fase:.0f}", P.ci_r, P.ci_ancho, P.ci_esp,
+                             P.ci_z0, P.ci_z1, P.ci_vueltas, fase, M.cinta))
+    # cubo
+    partes.append(anillo("hub", P.hub_d / 2, P.eje_d / 2, 70,
+                        P.ci_z1 - 70, M.cinta, 32))
+    # brazos radiales cubo -> fleje, solo en los extremos
+    for fase, z in ((0.0, P.ci_z1 - 20), (math.pi, P.ci_z1 - 20),
+                    (0.0, P.ci_z0 + 10), (math.pi, P.ci_z0 + 10)):
+        ca, sa = math.cos(fase), math.sin(fase)
+        largo = P.ci_r
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        b = bpy.context.object
+        b.scale = (largo * MM, P.brazo_ci * MM, P.brazo_ci * MM)
+        bpy.ops.object.transform_apply(scale=True)
+        b.location = (largo / 2 * ca * MM, largo / 2 * sa * MM, z * MM)
+        b.rotation_euler = (0, 0, fase)
+        poner_mat(b, M.cinta)
+        partes.append(b)
+    return unir(partes, "10_cinta_helicoidal")
+
+
+def raspadores():
+    """Raspadores de PTFE: flejes helicoidales finos a 1.5 mm de la pared,
+    siguiendo la misma helice que la cinta."""
+    r = P.r_r_int - P.rasp_gap - P.rasp_esp / 2
+    partes = []
+    for fase in (0.0, math.pi):
+        partes.append(helice(f"rasp{fase:.0f}", r, P.rasp_esp, P.rasp_esp,
+                             P.ci_z0, P.ci_z1, P.ci_vueltas, fase, M.ptfe))
+    return unir(partes, "11_raspadores_PTFE")
+
+
+def motorreductor():
+    z0 = P.plato_z + P.plato_esp
+    red = caja("red", P.red_x, P.red_y, P.red_z, 0, 0, z0 + P.red_z / 2,
+               M.motor)
+    bpy.ops.mesh.primitive_cylinder_add(
+        radius=P.mot_d / 2 * MM, depth=P.mot_l * MM, vertices=32,
+        rotation=(math.pi / 2, 0, 0),
+        location=(0, (P.red_y / 2 + P.mot_l / 2) * MM,
+                  (z0 + P.red_z * 0.6) * MM))
+    mot = bpy.context.object
+    poner_mat(mot, M.motor)
+    return unir([red, mot], "12_motorreductor")
+
+
+def boca_carga():
+    """
+    BOCA DE CARGA DE SOLIDOS con tamiz. La maicena entra por aqui, EN FRIO y
+    tamizada, cayendo BAJO el nivel de liquido. Es la pieza que evita los
+    grumos, que a 30 rpm ningun impulsor podria luego deshacer.
+    """
+    x = P.r_r_int * 0.5
+    ztop = P.rim_z + 40
+    tubo = cilindro("chute", P.chute_d / 2, P.chute_len, x, 0, ztop - 40,
+                    M.nuevo, 24)
+    tubo.rotation_euler = (math.radians(18), 0, 0)
+    # rejilla del tamiz (disco fino)
+    tamiz = cilindro("tamiz", P.chute_d / 2 - 2, 3, x, 0, ztop + 8, M.inox, 24)
+    return unir([tubo, tamiz], "13_boca_carga")
+
+
+def quemador():
+    an = toro("q_an", P.q_d / 2, P.q_tubo / 2, P.q_z, M.fuego)
+    bpy.ops.mesh.primitive_cylinder_add(
+        radius=P.q_tubo / 2 * MM, depth=320 * MM, vertices=16,
+        rotation=(0, math.pi / 2, 0),
+        location=(-(P.q_d / 2 + 160) * MM, 0, P.q_z * MM))
+    al = bpy.context.object
+    poner_mat(al, M.fuego)
+    return unir([an, al], "14_quemador")
+
+
 # =============================================================================
-# ESCENA Y RENDER
+# SECCION Y FLECHAS
 # =============================================================================
+
+def proceso_en_seccion():
+    a0, a1 = 0.0, 180.0
+    pz = []
+    pz.append(sector_anular("s_olla", P.r_r_ext, P.r_r_int, P.r_h_int,
+                            P.r_z_fondo, a0, a1, M.inox))
+    pz.append(sector_anular("s_olla_f", P.r_r_ext, 1.0, P.r_esp,
+                            P.r_z_fondo - P.r_esp, a0, a1, M.inox))
+    pz.append(sector_anular("s_cam", P.c_r_ext, P.c_r_int, P.r_camisa_h,
+                            P.c_z_fondo, a0, a1, M.inox))
+    pz.append(sector_anular("s_cam_f", P.c_r_ext, 1.0, P.r_esp,
+                            P.c_z_fondo - P.r_esp, a0, a1, M.inox))
+    pz.append(sector_anular("s_agua", P.c_r_int - 0.5, P.r_r_ext + 0.5,
+                            P.r_camisa_h - 30, P.c_z_fondo, a0, a1, M.agua))
+    pz.append(sector_anular("s_agua_f", P.c_r_int - 0.5, 1.0, 25.0,
+                            P.c_z_fondo - 25, a0, a1, M.agua))
+    pz.append(sector_anular("s_masa", P.r_r_int - 1, 1.0, P.r_h_masa,
+                            P.r_z_fondo, a0, a1, M.masa))
+    return pz
+
+
+def flechas():
+    out = []
+
+    def flecha(x, y, z, dz, mat, r=9.0, nombre="f"):
+        cuerpo = cilindro(nombre, r, abs(dz), x, y, z if dz > 0 else z + dz,
+                          mat, 16)
+        bpy.ops.mesh.primitive_cone_add(
+            radius1=r * 2.2 * MM, depth=34 * MM, vertices=16,
+            rotation=(0 if dz > 0 else math.pi, 0, 0),
+            location=(x * MM, y * MM, ((z + dz) if dz > 0 else z) * MM))
+        pt = bpy.context.object
+        poner_mat(pt, mat)
+        return unir([cuerpo, pt], nombre)
+
+    yf = -45.0
+    # la cinta sube masa por la pared...
+    out.append(flecha(P.r_r_int * 0.72, yf, P.r_z_fondo + 40, 330,
+                      M.flujo, nombre="fm1"))
+    # ...y la deja caer por el centro
+    out.append(flecha(P.r_r_int * 0.16, yf, P.r_z_fondo + 400, -330,
+                      M.flujo, nombre="fm2"))
+    # calor del quemador al agua
+    out.append(flecha(P.c_r_int - 6, yf, P.c_z_fondo - 95, 175,
+                      M.calor, r=8, nombre="fc1"))
+    for i, zz in enumerate((0.30, 0.62)):
+        z = P.r_z_fondo + P.r_h_masa * zz
+        c = cilindro(f"fcr{i}", 7, 46, 0, 0, 0, M.calor, 12)
+        c.rotation_euler = (0, math.pi / 2, 0)
+        c.location = ((P.r_r_int + 24) * MM, yf * MM, z * MM)
+        out.append(c)
+    return unir(out, "15_flechas")
+
+
+# =============================================================================
+# ESCENA
+# =============================================================================
+
+def limpiar():
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
 
 def luces_y_mundo():
-    mundo = bpy.data.worlds.new("W")
-    bpy.context.scene.world = mundo
-    mundo.use_nodes = True
-    mundo.node_tree.nodes["Background"].inputs[0].default_value = \
-        (0.92, 0.93, 0.95, 1)
-    mundo.node_tree.nodes["Background"].inputs[1].default_value = 0.7
-
-    bpy.ops.object.light_add(type='AREA', location=(2.2, -2.6, 3.4))
+    w = bpy.data.worlds.new("W")
+    bpy.context.scene.world = w
+    w.use_nodes = True
+    w.node_tree.nodes["Background"].inputs[0].default_value = (0.92, 0.93, 0.95, 1)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.7
+    bpy.ops.object.light_add(type='AREA', location=(2.2, -2.6, 3.6))
     k = bpy.context.object
-    k.data.energy = 900
+    k.data.energy = 1100
     k.data.size = 3.0
-    k.rotation_euler = (0.72, 0.0, 0.75)
-
-    bpy.ops.object.light_add(type='AREA', location=(-2.6, -1.4, 2.2))
+    k.rotation_euler = (0.7, 0, 0.75)
+    bpy.ops.object.light_add(type='AREA', location=(-2.6, -1.4, 2.4))
     f = bpy.context.object
-    f.data.energy = 320
+    f.data.energy = 380
     f.data.size = 3.5
     f.rotation_euler = (1.15, 0, -1.05)
-
     bpy.ops.object.light_add(type='SUN', location=(0, 3, 5))
     s = bpy.context.object
     s.data.energy = 1.6
@@ -668,7 +626,6 @@ def luces_y_mundo():
 
 
 def camara(loc, mira, lente=50, orto=None):
-    """orto = ancho de encuadre en metros -> camara ortografica."""
     bpy.ops.object.camera_add(location=loc)
     cam = bpy.context.object
     cam.data.lens = lente
@@ -688,30 +645,10 @@ def render(nombre, res=(1100, 1400), muestras=48):
     sc.cycles.samples = muestras
     sc.cycles.use_denoising = True
     sc.render.resolution_x, sc.render.resolution_y = res
-    sc.render.film_transparent = False
     os.makedirs(SALIDA, exist_ok=True)
     sc.render.filepath = os.path.join(SALIDA, nombre)
     bpy.ops.render.render(write_still=True)
     print(f"  render -> {nombre}.png")
-
-
-def cortar_mitad(objs):
-    """Corta y > 0 para dejar la seccion a la vista. Falla ruidosamente."""
-    for ob in objs:
-        if ob is None or ob.type != 'MESH':
-            print(f"  [corte] omitido: {ob}")
-            continue
-        n_antes = len(ob.data.vertices)
-        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 1.5, 1.2))
-        cuchilla = bpy.context.object
-        cuchilla.scale = (4.0, 3.0, 5.0)
-        bpy.ops.object.transform_apply(scale=True)
-        bpy.ops.object.select_all(action='DESELECT')
-        booleano(ob, cuchilla)
-        n_despues = len(ob.data.vertices)
-        estado = "cortado" if n_despues != n_antes else "SIN EFECTO"
-        print(f"  [corte] {ob.name:<26} {n_antes:>5} -> {n_despues:>5} verts"
-              f"  {estado}")
 
 
 # =============================================================================
@@ -720,32 +657,8 @@ def cortar_mitad(objs):
 
 def main():
     print("=" * 70)
-    print(" MODELO BLENDER - PROTOTIPO 2 PARA 30 kg")
+    print(" MODELO BLENDER - PROTOTIPO 2 (rev.2, cinta helicoidal)")
     print("=" * 70)
-    # --- comprobacion que decide si el acople es posible ---
-    v = comprobar_vano()
-    print("")
-    print(" COMPATIBILIDAD CON EL VANO DEL BASTIDOR EXISTENTE")
-    print(" " + "-" * 60)
-    print(f"   Diametro exterior del recipiente con camisa .. {v['d_ext']:6.0f} mm")
-    print(f"   Vano necesario (con 12 mm de luz por lado) ... {v['necesario']:6.0f} mm")
-    print(f"   Vano SUPUESTO del bastidor actual ............ {v['vano_supuesto']:6.0f} mm")
-    if not v["pasa"]:
-        falta = v["necesario"] - v["vano_supuesto"]
-        print(f"   >> NO PASA. Faltan {falta:.0f} mm de vano.")
-        print("   Tres salidas, en orden de preferencia:")
-        print("     1. Agrandar el vano recortando el marco. Es un corte")
-        print("        limpio en el marco superior, con refuerzo perimetral.")
-        print("     2. Bajar el diametro del recipiente a 250 mm. Cuesta")
-        print("        ~1.4 min mas de coccion y obliga a cinta helicoidal.")
-        print("     3. Colgar el recipiente POR ENCIMA de la mesa, sin")
-        print("        atravesarla. Sube la boca de carga y estorba.")
-        print("   BAS-06 decide. Si el vano real es mayor, no hay problema.")
-    else:
-        print(f"   >> PASA, con {v['vano_supuesto'] - v['necesario']:.0f} mm de margen.")
-    print(" " + "-" * 60)
-    print("")
-
     limpiar()
     crear_materiales()
     os.makedirs(SALIDA, exist_ok=True)
@@ -753,22 +666,22 @@ def main():
     print(" construyendo geometria...")
     piso()
     o_viejo = bastidor_existente()
-    o_torre = torre_nueva()
+    columna_reforzada()
+    collar_par()
+    topes_antigiro()
     o_olla = recipiente()
     o_cam = camisa()
     o_agua = fluido_camisa()
     o_masa = masa()
     o_eje = eje()
-    o_ancla = ancla()
+    o_cinta = cinta_helicoidal()
     o_rasp = raspadores()
-    o_motor = motorreductor()
-    o_guia = guia_eje()
-    o_quem = quemador()
+    motorreductor()
+    boca_carga()
+    quemador()
     print(f"  {len(bpy.data.objects)} objetos")
 
     luces_y_mundo()
-
-    # --- guardar escena completa antes de cortar ---
     bpy.ops.wm.save_as_mainfile(
         filepath=os.path.join(SALIDA, "prototipo_2_30kg.blend"))
     try:
@@ -779,42 +692,30 @@ def main():
     except Exception as e:
         print(f"  GLB omitido: {e}")
 
-    # --- vista 1: conjunto en perspectiva ---
     print(" render 1/4  conjunto...")
-    camara((2.9, -3.3, 2.1), (0, 0, 1.00), lente=42)
+    camara((2.6, -3.0, 1.9), (0, 0, 0.95), lente=45)
     render("01_conjunto", res=(1100, 1400))
 
-    # --- vista 2: alzado ortografico, para leer proporciones y alturas ---
     print(" render 2/4  alzado...")
-    camara((0, -6.0, 1.05), (0, 0, 1.05), orto=2.5)
+    camara((0, -6.0, 1.0), (0, 0, 1.0), orto=2.3)
     render("02_alzado", res=(1000, 1400))
 
-    # --- vista 3: acople del bastidor viejo con la torre nueva ---
-    print(" render 3/4  detalle de acople...")
-    camara((1.7, -2.2, 1.05), (0, 0, 0.76), lente=50)
-    render("03_acople_base", res=(1300, 1050))
+    print(" render 3/4  detalle collar de par...")
+    camara((1.5, -1.9, 1.45), (0, 0, 1.32), lente=52)
+    render("03_collar_par", res=(1300, 1050))
 
-    # --- vista 4: SECCION, con las flechas de proceso ---
     print(" render 4/4  seccion de proceso...")
     for ob in (o_olla, o_cam, o_agua, o_masa):
         bpy.data.objects.remove(ob, do_unlink=True)
-    # Se retira todo lo que queda delante del plano de corte. El bastidor
-    # viejo tambien: su papel en el acople ya se explica en la vista 03, y
-    # aqui solo taparia el proceso, que es lo que esta vista tiene que
-    # contar.
-    for nombre in ("02b_torre_frente", "01_bastidor_EXISTENTE"):
-        ob = bpy.data.objects.get(nombre)
-        if ob:
-            bpy.data.objects.remove(ob, do_unlink=True)
+    if o_viejo:
+        bpy.data.objects.remove(o_viejo, do_unlink=True)
     proceso_en_seccion()
     flechas()
-    # seccion tecnica: de frente y en ortografica
-    camara((0, -6.0, 0.70), (0, 0, 0.70), orto=0.92)
+    camara((0, -6.0, 0.78), (0, 0, 0.78), orto=0.98)
     render("04_seccion_proceso", res=(1050, 1450), muestras=64)
 
     bpy.ops.wm.save_as_mainfile(
         filepath=os.path.join(SALIDA, "prototipo_2_corte.blend"))
-
     print("=" * 70)
     print(f" Listo. Salidas en {os.path.relpath(SALIDA, RAIZ)}/")
     print("=" * 70)

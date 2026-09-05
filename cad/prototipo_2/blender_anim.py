@@ -152,16 +152,18 @@ def escena_base():
     m.piso()
     o = {
         "viejo": m.bastidor_existente(),
-        "torre": m.torre_nueva(),
+        "columna": m.columna_reforzada(),
+        "collar": m.collar_par(),
+        "topes": m.topes_antigiro(),
         "olla": m.recipiente(),
         "camisa": m.camisa(),
         "agua": m.fluido_camisa(),
         "masa": m.masa(),
         "eje": m.eje(),
-        "ancla": m.ancla(),
+        "cinta": m.cinta_helicoidal(),
         "rasp": m.raspadores(),
         "motor": m.motorreductor(),
-        "guia": m.guia_eje(),
+        "boca": m.boca_carga(),
         "quemador": m.quemador(),
     }
     m.luces_y_mundo()
@@ -183,13 +185,13 @@ def anim_seccion(n_frames=48):
     m.proceso_en_seccion()
     m.flechas()
 
-    # lo unico que gira: eje, ancla y raspadores
-    giran = [o["eje"], o["ancla"], o["rasp"]]
+    # lo unico que gira: eje, cinta helicoidal y raspadores
+    giran = [o["eje"], o["cinta"], o["rasp"]]
     centrar_origen(giran)
     animar_giro(giran, n_frames)
 
-    m.camara((0, -6.0, 0.70), (0, 0, 0.70), orto=0.92)
-    carpeta = config_video("A_seccion_girando.mp4", (620, 850), n_frames)
+    m.camara((0, -6.0, 0.78), (0, 0, 0.78), orto=0.98)
+    carpeta = config_video("A_seccion_girando.mp4", (640, 900), n_frames)
     bpy.ops.render.render(animation=True)
     codificar(carpeta, "A_seccion_girando.mp4")
     print("  -> A_seccion_girando.mp4")
@@ -201,9 +203,9 @@ def anim_vuelta(n_frames=72):
     escena_base()
 
     # camara colgada de un vacio que gira: orbita limpia y estable
-    bpy.ops.object.empty_add(location=(0, 0, 1.00))
+    bpy.ops.object.empty_add(location=(0, 0, 1.05))
     pivote = bpy.context.object
-    cam = m.camara((3.4, -3.4, 2.15), (0, 0, 1.00), lente=40)
+    cam = m.camara((2.9, -2.9, 1.95), (0, 0, 1.05), lente=42)
     cam.parent = pivote
     cam.matrix_parent_inverse = pivote.matrix_world.inverted()
 
